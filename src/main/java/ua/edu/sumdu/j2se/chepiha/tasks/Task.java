@@ -25,7 +25,10 @@ public class Task {
      * @param title     task name
      * @param time      the time for a one-time task
      */
-    public Task(String title, int time) {
+    public Task(String title, int time) throws IllegalArgumentException {
+
+        if(time<0) throw new IllegalArgumentException("Time must be above zero");
+
         this.setDefaultRepeatedTime();
 
         this.title = title;
@@ -39,7 +42,13 @@ public class Task {
      * @param end the end time of the recurring task
      * @param interval a period of time to repeat the task
      */
-    public Task(String title, int start, int end, int interval) {
+    public Task(String title, int start, int end, int interval) throws IllegalArgumentException {
+
+        if(start<0) throw new IllegalArgumentException("Time start must be above zero");
+        if(end<0) throw new IllegalArgumentException("Time end must be above zero");
+        if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
+        if(end<start) throw new IllegalArgumentException("Time end must be above time start");
+
         this.setDefaultNotRepeatedTime();
 
         this.title = title;
@@ -70,7 +79,10 @@ public class Task {
      *
      * @param title task name
      */
-    public void setTitle(String title) {
+    public void setTitle(String title) throws IllegalArgumentException {
+
+        if(title.trim().length()<=0) throw new IllegalArgumentException("Name task must not equal null");
+
         this.title = title;
     }
 
@@ -104,7 +116,10 @@ public class Task {
      *
      * @param time the time for a one-time task
      */
-    public void setTime(int time) {
+    public void setTime(int time) throws IllegalArgumentException {
+
+        if(time <0) throw new IllegalArgumentException("Time must be above zero");
+
         this.setDefaultRepeatedTime();
 
         this.time = time;
@@ -146,7 +161,13 @@ public class Task {
      * @param end the end time of the recurring task
      * @param interval a period of time to repeat the task
      */
-    public void setTime(int start, int end, int interval) {
+    public void setTime(int start, int end, int interval) throws IllegalArgumentException {
+
+        if(start<0) throw new IllegalArgumentException("Time start must be above zero");
+        if(end<0) throw new IllegalArgumentException("Time end must be above zero");
+        if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
+        if(end<start) throw new IllegalArgumentException("Time end must be above time start");
+
         this.setDefaultNotRepeatedTime();
 
         this.start = start;
@@ -197,7 +218,10 @@ public class Task {
      * @param current time to next start the task
      * @return return the time to next start the task, or -1 if the task never will be starting
      */
-    public int nextTimeAfter (int current){
+    public int nextTimeAfter (int current) throws IllegalArgumentException {
+
+        if(current <0) throw new IllegalArgumentException("Current time must be above zero");
+
         if(!this.activeTask)
             return RESULT_WRONG;
         if(this.time > DEFAULT_TIME_VALUE)

@@ -1,3 +1,12 @@
+/**
+ *
+ * @autor Valentyn Chepiha
+ *
+ * Returns a ArrayTaskList object.
+ * The object has methods to adding, removing element of Array.
+ * You can get the size of the list, information about the task in the Array
+ * and the Array of tasks it performs between two current moments.
+ */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
 public class ArrayTaskList {
@@ -19,7 +28,10 @@ public class ArrayTaskList {
      * constructor
      * @param startLength size list
      */
-    public ArrayTaskList(int startLength) {
+    public ArrayTaskList(int startLength) throws IllegalArgumentException {
+
+        if(startLength<=0) throw new IllegalArgumentException("Length must be above zero");
+
         this.taskList = new Task[startLength];
     }
 
@@ -27,36 +39,23 @@ public class ArrayTaskList {
      *
      * @param task new task to the list
      */
-    public void add(Task task){
+    public void add(Task task) throws IllegalArgumentException {
+
+        if(task == null) throw new IllegalArgumentException("Task must not equal null");
+
         if(sizeList+1 >= taskList.length){
             int newLength = (int)(taskList.length * DELTA_SIZE_LIST) + 1;
             Task[] newTaskList = new Task[newLength];
             System.arraycopy(taskList, 0, newTaskList, 0, sizeList);
             taskList = newTaskList;
-            newTaskList = null;
         }
         taskList[sizeList] = task;
         sizeList++;
     }
 
-    /**
-     *
-     * @param task the task that need remove
-     * @return if is done return true else return false
-     */
-    public boolean remove(Task task){
-        int indexTask = -1;
+    private Task[] createNewTaskList(int indexTask) throws IllegalArgumentException {
 
-        for(int i=0; i<sizeList; i++){
-            if(taskList[i].equals(task)){
-                indexTask = i;
-                break;
-            }
-        }
-
-        if(indexTask==-1){
-            return false;
-        }
+        if(indexTask<0 || indexTask>=sizeList) throw new IndexOutOfBoundsException("Index out of array");
 
         Task[] newTaskList = new Task[taskList.length];
         if(indexTask > 0){
@@ -65,11 +64,26 @@ public class ArrayTaskList {
         } else {
             System.arraycopy(taskList, indexTask+1, newTaskList, 0, taskList.length-indexTask - 1);
         }
+        return newTaskList;
+    }
 
-        taskList = newTaskList;
-        newTaskList = null;
-        sizeList--;
-        return true;
+    /**
+     *
+     * @param task the task that need remove
+     * @return if is done return true else return false
+     */
+    public boolean remove(Task task) throws IllegalArgumentException {
+
+        if(task == null) throw new IllegalArgumentException("Task must not equal null");
+
+        for(int i=0; i<sizeList; i++){
+            if(taskList[i].equals(task)){
+                taskList = this.createNewTaskList(i);
+                sizeList--;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -85,9 +99,10 @@ public class ArrayTaskList {
      * @param index the index of the task in the list, starting with 0
      * @return return the task or null
      */
-    public Task getTask(int index){
-        if(index >= sizeList)
-            return null;
+    public Task getTask(int index) throws IndexOutOfBoundsException {
+
+        if(index<0 || index>=sizeList) throw new IndexOutOfBoundsException("Index out of array");
+
         return taskList[index];
     }
 
@@ -97,7 +112,12 @@ public class ArrayTaskList {
      * @param to end time
      * @return the list of tasks to be performed in the specified period of time
      */
-    public ArrayTaskList incoming(int from, int to){
+    public ArrayTaskList incoming(int from, int to) throws IllegalArgumentException {
+
+        if(from<0) throw new IllegalArgumentException("Time 'from' must be above zero");
+        if(to<0) throw new IllegalArgumentException("Time 'to' must be above zero");
+        if(to<from) throw new IllegalArgumentException("Time 'to' must be above time 'from'");
+
         ArrayTaskList subTaskList = new ArrayTaskList(sizeList);
         for(int i=0; i<sizeList; i++){
             int timeNextStart = taskList[i].nextTimeAfter(from);
