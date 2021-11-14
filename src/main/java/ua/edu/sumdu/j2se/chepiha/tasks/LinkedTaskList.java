@@ -9,9 +9,7 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
-import java.util.LinkedList;
-
-public class LinkedTaskList {
+public class LinkedTaskList extends AbstractTaskList {
 
     private static class Node {
         Task value;
@@ -29,6 +27,8 @@ public class LinkedTaskList {
     private Node first;
     private Node last;
 
+    private Node current;
+
     /**
      * constructor
      */
@@ -38,6 +38,7 @@ public class LinkedTaskList {
     /**
      *
      * @param task new task to the list
+     * @throws IllegalArgumentException generated exception if 'task' is null
      */
     public void add(Task task) throws IllegalArgumentException {
 
@@ -63,6 +64,7 @@ public class LinkedTaskList {
      *
      * @param task the task that need remove
      * @return if is done return true else return false
+     * @throws IllegalArgumentException generated exception if 'task' is null
      */
     public boolean remove(Task task) throws IllegalArgumentException {
 
@@ -88,6 +90,9 @@ public class LinkedTaskList {
                 }
 
                 sizeList--;
+                if(sizeList == 1){
+                    last = null;
+                }
                 return true;
             }
             currentNode = currentNode.next;
@@ -130,37 +135,22 @@ public class LinkedTaskList {
      *
      * @param index the index of the task in the list, starting with 0
      * @return return the task or null
+     * @throws IndexOutOfBoundsException generated exception if 'index' is wrong
      */
     public Task getTask(int index) throws IndexOutOfBoundsException {
 
         if(index<0 || index>=sizeList) throw new IndexOutOfBoundsException("Index out of list");
 
-        return ( index < sizeList / 2) ? this.searchUp(index) : this.searchDown(index);
+        return ( index <= sizeList / 2) ? this.searchUp(index) : this.searchDown(index);
     }
 
-    /**
-     *
-     * @param from start time
-     * @param to end time
-     * @return the list of tasks to be performed in the specified period of time
-     */
-    public LinkedTaskList incoming(int from, int to) throws IllegalArgumentException {
+    protected void startPosition() {
+        this.current = this.first;
+    }
 
-        if(from<0) throw new IllegalArgumentException("Time 'from' must be above zero");
-        if(to<0) throw new IllegalArgumentException("Time 'to' must be above zero");
-        if(to<from) throw new IllegalArgumentException("Time 'to' must be above time 'from'");
-
-        LinkedTaskList subTaskList = new LinkedTaskList();
-
-        Node currentNode = first;
-        for(int i=0; i<sizeList; i++){
-            int timeNextStart = currentNode.value.nextTimeAfter(from);
-            if(timeNextStart>=0 && timeNextStart <= to){
-                subTaskList.add(currentNode.value);
-            }
-            currentNode = currentNode.next;
-        }
-
-        return subTaskList;
+    protected Task next(){
+        Task resultTask = current.value;
+        current = current.next;
+        return resultTask;
     }
 }

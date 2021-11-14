@@ -176,7 +176,7 @@ public class Task {
 
     private int calculateNextStart (int current) {
         int deltaTime = current - start;
-        int wholePart = deltaTime / interval;
+        int wholePart = (int)deltaTime / interval;
 
         if(wholePart * interval <= deltaTime )
             wholePart++;
@@ -212,5 +212,17 @@ public class Task {
             return RESULT_WRONG;
 
         return (time > DEFAULT_TIME_VALUE) ? getNextNotRepeatedTime(current) : getNextRepeatedTime(current);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "title='" + title + '\'' +
+                ", time=" + time +
+                ", start=" + start +
+                ", end=" + end +
+                ", interval=" + interval +
+                ", activeTask=" + activeTask +
+                '}';
     }
 }
