@@ -13,7 +13,7 @@ public class Task {
     private final int RESULT_WRONG = -1;
     private final int RESULT_ZERO = 0;
 
-    private String title = "";
+    private String title;
     private int time;
     private int start;
     private int end;
@@ -29,7 +29,7 @@ public class Task {
 
         if(time<0) throw new IllegalArgumentException("Time must be above zero");
 
-        this.setDefaultRepeatedTime();
+        setDefaultRepeatedTime();
 
         this.title = title;
         this.time = time;
@@ -49,7 +49,7 @@ public class Task {
         if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
         if(end<start) throw new IllegalArgumentException("Time end must be above time start");
 
-        this.setDefaultNotRepeatedTime();
+        setDefaultNotRepeatedTime();
 
         this.title = title;
         this.start = start;
@@ -57,14 +57,14 @@ public class Task {
         this.interval = interval;
     }
 
-    private void setDefaultNotRepeatedTime() {
-        this.time = DEFAULT_TIME_VALUE;
+    private void setDefaultNotRepeatedTime()
+    {
+        time = DEFAULT_TIME_VALUE;
     }
-
     private void setDefaultRepeatedTime() {
-        this.start = DEFAULT_TIME_VALUE;
-        this.end = DEFAULT_TIME_VALUE;
-        this.interval = DEFAULT_TIME_VALUE;
+        start = DEFAULT_TIME_VALUE;
+        end = DEFAULT_TIME_VALUE;
+        interval = DEFAULT_TIME_VALUE;
     }
 
     /**
@@ -72,7 +72,7 @@ public class Task {
      * @return returning name of task
      */
     public String getTitle() {
-        return this.title;
+        return title;
     }
 
     /**
@@ -91,7 +91,7 @@ public class Task {
      * @return returning true if task is enabled, else returning false
      */
     public boolean isActive() {
-        return this.activeTask;
+        return activeTask;
     }
 
     /**
@@ -107,9 +107,7 @@ public class Task {
      * @return time to start a one-time task
      */
     public int getTime() {
-        if (this.start > DEFAULT_TIME_VALUE)
-            return this.start;
-        return this.time;
+        return (start > DEFAULT_TIME_VALUE) ? start : time;
     }
 
     /**
@@ -120,8 +118,7 @@ public class Task {
 
         if(time <0) throw new IllegalArgumentException("Time must be above zero");
 
-        this.setDefaultRepeatedTime();
-
+        setDefaultRepeatedTime();
         this.time = time;
     }
 
@@ -130,9 +127,7 @@ public class Task {
      * @return return time to start the task
      */
     public int getStartTime() {
-        if(this.start > DEFAULT_TIME_VALUE)
-            return this.start;
-        return this.time;
+        return (start > DEFAULT_TIME_VALUE) ? start : time;
     }
 
     /**
@@ -140,9 +135,7 @@ public class Task {
      * @return return time to end the task
      */
     public int getEndTime() {
-        if(this.end > DEFAULT_TIME_VALUE)
-            return this.end;
-        return this.time;
+        return (end > DEFAULT_TIME_VALUE) ? end : time;
     }
 
     /**
@@ -150,9 +143,7 @@ public class Task {
      * @return return the interval to repeat the task, if task runs once return 0
      */
     public int getRepeatInterval() {
-        if(this.interval > DEFAULT_TIME_VALUE)
-            return this.interval;
-        return RESULT_ZERO;
+        return (interval > DEFAULT_TIME_VALUE) ? interval : RESULT_ZERO ;
     }
 
     /**
@@ -168,7 +159,7 @@ public class Task {
         if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
         if(end<start) throw new IllegalArgumentException("Time end must be above time start");
 
-        this.setDefaultNotRepeatedTime();
+        setDefaultNotRepeatedTime();
 
         this.start = start;
         this.end = end;
@@ -180,37 +171,32 @@ public class Task {
      * @return return true if the task is recurring else return false
      */
     public boolean isRepeated() {
-        return this.start > DEFAULT_TIME_VALUE;
+        return start > DEFAULT_TIME_VALUE;
     }
 
     private int calculateNextStart (int current) {
-        int deltaTime = current - this.start;
-        int wholePart = (int)(deltaTime / this.interval);
+        int deltaTime = current - start;
+        int wholePart = (int)deltaTime / interval;
 
-        if(wholePart * this.interval <= deltaTime )
+        if(wholePart * interval <= deltaTime )
             wholePart++;
 
-        return wholePart * this.interval + this.start;
+        return wholePart * interval + start;
     }
 
     private int getNextRepeatedTime(int current) {
-        if(current < this.start)
-            return this.start;
-        if(current > this.end)
+        if(current < start)
+            return start;
+        if(current > end)
             return RESULT_WRONG;
 
-        int nextTime = this.calculateNextStart(current);
-        if(nextTime > this.end)
-            return RESULT_WRONG;
+        int nextTime = calculateNextStart(current);
 
-        return nextTime;
+        return (nextTime > end) ? RESULT_WRONG : nextTime;
     }
 
     private int getNextNotRepeatedTime(int current) {
-        if(current >= this.time)
-            return RESULT_WRONG;
-
-        return this.time;
+        return (current >= time) ? RESULT_WRONG : time;
     }
 
     /**
@@ -222,10 +208,21 @@ public class Task {
 
         if(current <0) throw new IllegalArgumentException("Current time must be above zero");
 
-        if(!this.activeTask)
+        if(!activeTask)
             return RESULT_WRONG;
-        if(this.time > DEFAULT_TIME_VALUE)
-            return this.getNextNotRepeatedTime(current);
-        return this.getNextRepeatedTime(current);
+
+        return (time > DEFAULT_TIME_VALUE) ? getNextNotRepeatedTime(current) : getNextRepeatedTime(current);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "title='" + title + '\'' +
+                ", time=" + time +
+                ", start=" + start +
+                ", end=" + end +
+                ", interval=" + interval +
+                ", activeTask=" + activeTask +
+                '}';
     }
 }
