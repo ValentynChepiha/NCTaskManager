@@ -40,6 +40,7 @@ public class LinkedTaskList extends AbstractTaskList {
      * @param task new task to the list
      * @throws IllegalArgumentException generated exception if 'task' is null
      */
+    @Override
     public void add(Task task) throws IllegalArgumentException {
 
         if(task == null) throw new IllegalArgumentException("Task must not equal null");
@@ -66,6 +67,7 @@ public class LinkedTaskList extends AbstractTaskList {
      * @return if is done return true else return false
      * @throws IllegalArgumentException generated exception if 'task' is null
      */
+    @Override
     public boolean remove(Task task) throws IllegalArgumentException {
 
         if(task == null) throw new IllegalArgumentException("Task must not equal null");
@@ -105,6 +107,7 @@ public class LinkedTaskList extends AbstractTaskList {
      *
      * @return amount tasks in the list
      */
+    @Override
     public int size(){
         return sizeList;
     }
@@ -137,6 +140,7 @@ public class LinkedTaskList extends AbstractTaskList {
      * @return return the task or null
      * @throws IndexOutOfBoundsException generated exception if 'index' is wrong
      */
+    @Override
     public Task getTask(int index) throws IndexOutOfBoundsException {
 
         if(index<0 || index>=sizeList) throw new IndexOutOfBoundsException("Index out of list");
@@ -144,10 +148,12 @@ public class LinkedTaskList extends AbstractTaskList {
         return ( index <= sizeList / 2) ? this.searchUp(index) : this.searchDown(index);
     }
 
+    @Override
     protected void startPosition() {
         this.current = this.first;
     }
 
+    @Override
     protected Task next(){
         Task resultTask = current.value;
         current = current.next;

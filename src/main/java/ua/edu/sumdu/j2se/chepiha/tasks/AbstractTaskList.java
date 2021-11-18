@@ -28,9 +28,6 @@ public abstract class AbstractTaskList {
         if(to<from) throw new IllegalArgumentException("Time 'to' must be above time 'from'");
 
         ListTypes.types typeLists = TaskListFactory.getTypeTaskList(this);
-
-        if(typeLists == null) throw new IllegalArgumentException("Wrong type list");
-
         AbstractTaskList subTaskList = TaskListFactory.createTaskList( typeLists );
 
         int sizeList = this.size();

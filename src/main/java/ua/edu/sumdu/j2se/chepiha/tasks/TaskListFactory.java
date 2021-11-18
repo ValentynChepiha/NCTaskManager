@@ -13,12 +13,13 @@ public class TaskListFactory {
      * @param taskList ListTask
      * @return type of ListTask, if unknown type of ListTask then returned null
      */
-    public static ListTypes.types getTypeTaskList( AbstractTaskList taskList){
+    public static ListTypes.types getTypeTaskList( AbstractTaskList taskList) throws IllegalArgumentException {
         if (taskList instanceof ArrayTaskList)
             return ListTypes.types.ARRAY;
         if (taskList instanceof LinkedTaskList)
             return ListTypes.types.LINKED;
-        return null;
+
+        throw new IllegalArgumentException("Unknown type TaskList");
     }
 
     /**
@@ -26,17 +27,13 @@ public class TaskListFactory {
      * @param typeList type of ListTask
      * @return create new ListTask, if unknown type then returned null
      */
-    public static AbstractTaskList createTaskList(ListTypes.types typeList){
-        AbstractTaskList resultTaskList;
+    public static AbstractTaskList createTaskList(ListTypes.types typeList) throws IllegalArgumentException {
         switch (typeList){
             case ARRAY:
-                resultTaskList = new ArrayTaskList();
-                break;
+                return new ArrayTaskList();
             case LINKED:
-                resultTaskList = new LinkedTaskList();
-                break;
-            default: resultTaskList = null;
+                return new LinkedTaskList();
+            default: throw new IllegalArgumentException("Unknown type list");
         }
-        return resultTaskList;
     }
 }
