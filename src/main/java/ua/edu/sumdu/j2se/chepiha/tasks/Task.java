@@ -218,11 +218,49 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "title='" + title + '\'' +
-                ", time=" + time +
-                ", start=" + start +
-                ", end=" + end +
-                ", interval=" + interval +
+                (time < 0 ? "" : ", time=" + time) +
+                (start < 0 ? "" : ", start=" + start) +
+                (end < 0 ? "" : ", end=" + end) +
+                (interval < 0 ? "" : ", interval=" + interval) +
                 ", activeTask=" + activeTask +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return time == task.time
+                && start == task.start
+                && end == task.end
+                && interval == task.interval
+                && activeTask == task.activeTask
+                && title.equals(task.title);
+    }
+
+    @Override
+    public int hashCode() {
+        int salt = 31;
+        int result = 7;
+        result = salt * result + title.hashCode();
+        result = salt * result + time;
+        result = salt * result + start;
+        result = salt * result + end;
+        result = salt * result + interval;
+        result = salt * result + (activeTask ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public Task clone(){
+        Task cloneTask = new Task(title, time);
+
+        if(isRepeated()){
+            cloneTask.setTime(start, end, interval);
+        }
+        cloneTask.setActive(isActive());
+
+        return cloneTask;
+    };
 }

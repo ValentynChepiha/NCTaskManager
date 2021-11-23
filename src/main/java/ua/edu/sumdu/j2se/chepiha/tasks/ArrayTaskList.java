@@ -9,6 +9,9 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class ArrayTaskList extends AbstractTaskList {
 
     private final float DELTA_SIZE_LIST = 1.5f;
@@ -16,8 +19,6 @@ public class ArrayTaskList extends AbstractTaskList {
 
     private Task[] taskList;
     private int sizeList = 0;
-
-    private int current = 0;
 
     /**
      * constructor
@@ -58,17 +59,18 @@ public class ArrayTaskList extends AbstractTaskList {
         sizeList++;
     }
 
-    private Task[] createNewTaskList(int indexTask) throws IllegalArgumentException {
+    private Task[] createNewTaskList(int indexDeleteTask) throws IllegalArgumentException {
 
-        if(indexTask<0 || indexTask>=sizeList) throw new IndexOutOfBoundsException("Index out of array");
+        if(indexDeleteTask<0 || indexDeleteTask>=sizeList) throw new IndexOutOfBoundsException("Index out of array");
 
         Task[] newTaskList = new Task[taskList.length];
-        if(indexTask > 0){
-            System.arraycopy(taskList, 0, newTaskList, 0, indexTask);
-            System.arraycopy(taskList, indexTask+1, newTaskList, indexTask, taskList.length-indexTask - 1);
+        if(indexDeleteTask > 0){
+            System.arraycopy(taskList, 0, newTaskList, 0, indexDeleteTask);
+            System.arraycopy(taskList, indexDeleteTask+1, newTaskList, indexDeleteTask, taskList.length-indexDeleteTask - 1);
         } else {
-            System.arraycopy(taskList, indexTask+1, newTaskList, 0, taskList.length-indexTask - 1);
+            System.arraycopy(taskList, indexDeleteTask+1, newTaskList, 0, taskList.length-indexDeleteTask - 1);
         }
+        sizeList--;
         return newTaskList;
     }
 
@@ -86,7 +88,6 @@ public class ArrayTaskList extends AbstractTaskList {
         for(int i=0; i<sizeList; i++){
             if(taskList[i].equals(task)){
                 taskList = this.createNewTaskList(i);
-                sizeList--;
                 return true;
             }
         }
@@ -117,14 +118,34 @@ public class ArrayTaskList extends AbstractTaskList {
     }
 
     @Override
-    protected void startPosition() {
-        this.current = 0;
+    public Iterator<Task> iterator() {
+        return new IteratorList();
     }
 
-    @Override
-    protected Task next(){
-        Task resultTask = taskList[current];
-        current++;
-        return resultTask;
+    private class IteratorList implements Iterator<Task> {
+
+        private int currentIndex = -1;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex != sizeList;
+        }
+
+        @Override
+        public Task next() {
+            if(currentIndex >= sizeList)
+                throw new NoSuchElementException();
+            if(currentIndex<0)
+                currentIndex++;
+            return taskList[currentIndex++];
+        }
+
+        @Override
+        public void remove() {
+            if(currentIndex < 0 || currentIndex >= sizeList)
+                throw new IllegalStateException();
+            currentIndex--;
+            taskList = createNewTaskList(currentIndex);
+        }
     }
 }
