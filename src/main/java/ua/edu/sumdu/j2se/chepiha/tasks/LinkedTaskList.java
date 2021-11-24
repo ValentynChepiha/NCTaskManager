@@ -9,6 +9,9 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class LinkedTaskList extends AbstractTaskList {
 
     private static class Node {
@@ -27,8 +30,6 @@ public class LinkedTaskList extends AbstractTaskList {
     private Node first;
     private Node last;
 
-    private Node current;
-
     /**
      * constructor
      */
@@ -40,6 +41,7 @@ public class LinkedTaskList extends AbstractTaskList {
      * @param task new task to the list
      * @throws IllegalArgumentException generated exception if 'task' is null
      */
+    @Override
     public void add(Task task) throws IllegalArgumentException {
 
         if(task == null) throw new IllegalArgumentException("Task must not equal null");
@@ -60,12 +62,32 @@ public class LinkedTaskList extends AbstractTaskList {
         sizeList++;
     }
 
+    private void removeCurrentNode(Node currentNode){
+        if(currentNode.prev != null){
+            currentNode.prev.next = currentNode.next;
+        } else {
+            first = currentNode.next;
+        }
+
+        if(currentNode.next != null) {
+            currentNode.next.prev = currentNode.prev;
+        } else {
+            last = currentNode.prev;
+        }
+
+        sizeList--;
+        if(sizeList == 1){
+            last = null;
+        }
+    }
+
     /**
      *
      * @param task the task that need remove
      * @return if is done return true else return false
      * @throws IllegalArgumentException generated exception if 'task' is null
      */
+    @Override
     public boolean remove(Task task) throws IllegalArgumentException {
 
         if(task == null) throw new IllegalArgumentException("Task must not equal null");
@@ -75,24 +97,7 @@ public class LinkedTaskList extends AbstractTaskList {
         Node currentNode = first;
         do {
             if(currentNode.value.equals(task)){
-
-                if(currentNode.prev != null){
-                    currentNode.prev.next = currentNode.next;
-                } else {
-                    first = currentNode.next;
-                }
-
-
-                if(currentNode.next != null) {
-                    currentNode.next.prev = currentNode.prev;
-                } else {
-                    last = currentNode.prev;
-                }
-
-                sizeList--;
-                if(sizeList == 1){
-                    last = null;
-                }
+                removeCurrentNode(currentNode);
                 return true;
             }
             currentNode = currentNode.next;
@@ -105,6 +110,7 @@ public class LinkedTaskList extends AbstractTaskList {
      *
      * @return amount tasks in the list
      */
+    @Override
     public int size(){
         return sizeList;
     }
@@ -137,6 +143,7 @@ public class LinkedTaskList extends AbstractTaskList {
      * @return return the task or null
      * @throws IndexOutOfBoundsException generated exception if 'index' is wrong
      */
+    @Override
     public Task getTask(int index) throws IndexOutOfBoundsException {
 
         if(index<0 || index>=sizeList) throw new IndexOutOfBoundsException("Index out of list");
@@ -144,13 +151,39 @@ public class LinkedTaskList extends AbstractTaskList {
         return ( index <= sizeList / 2) ? this.searchUp(index) : this.searchDown(index);
     }
 
-    protected void startPosition() {
-        this.current = this.first;
+    @Override
+    public Iterator<Task> iterator() {
+        return new IteratorList();
     }
 
-    protected Task next(){
-        Task resultTask = current.value;
-        current = current.next;
-        return resultTask;
+    private class IteratorList implements Iterator<Task> {
+
+        private int currentIndex = -1;
+        private Node currentNode = first;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < sizeList;
+        }
+
+        @Override
+        public Task next() {
+            if(currentIndex >= sizeList)
+                throw new NoSuchElementException();
+            if(currentIndex<0)
+                currentIndex++;
+            currentIndex++;
+            Task task = currentNode.value;
+            currentNode = currentNode.next;
+            return task;
+        }
+
+        @Override
+        public void remove() {
+            if(currentIndex < 0 || currentIndex >= sizeList)
+                throw new IllegalStateException();
+            currentIndex--;
+            removeCurrentNode(currentNode.prev);
+        }
     }
 }
