@@ -9,9 +9,9 @@
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
 public class Task {
-    private final int DEFAULT_TIME_VALUE = -1;
-    private final int RESULT_WRONG = -1;
-    private final int RESULT_ZERO = 0;
+    private static final int DEFAULT_TIME_VALUE = -1;
+    private static final int RESULT_WRONG = -1;
+    private static final int RESULT_ZERO = 0;
 
     private String title;
     private int time;
@@ -61,6 +61,7 @@ public class Task {
     {
         time = DEFAULT_TIME_VALUE;
     }
+
     private void setDefaultRepeatedTime() {
         start = DEFAULT_TIME_VALUE;
         end = DEFAULT_TIME_VALUE;
@@ -214,6 +215,10 @@ public class Task {
         return (time > DEFAULT_TIME_VALUE) ? getNextNotRepeatedTime(current) : getNextRepeatedTime(current);
     }
 
+    /**
+     *
+     * @return string line with text info about task
+     */
     @Override
     public String toString() {
         return "Task{" +
@@ -226,6 +231,11 @@ public class Task {
                 '}';
     }
 
+    /**
+     *
+     * @param o object to compare
+     * @return if current task equals o return true else false
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -239,6 +249,10 @@ public class Task {
                 && title.equals(task.title);
     }
 
+    /**
+     *
+     * @return hash code current task
+     */
     @Override
     public int hashCode() {
         int salt = 31;
@@ -252,6 +266,10 @@ public class Task {
         return result;
     }
 
+    /**
+     *
+     * @return clone current task
+     */
     @Override
     public Task clone(){
         Task cloneTask = new Task(title, time);

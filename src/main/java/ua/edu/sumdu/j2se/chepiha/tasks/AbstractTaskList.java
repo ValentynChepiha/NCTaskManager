@@ -6,6 +6,7 @@
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
     public abstract void add(Task task);
@@ -15,6 +16,11 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
 
     public abstract Iterator<Task> iterator();
 
+    private AbstractTaskList getCopyInstance(AbstractTaskList original){
+        ListTypes.types typeLists = TaskListFactory.getTypeTaskList(original);
+        return TaskListFactory.createTaskList( typeLists );
+    }
+
     /**
      *
      * @param from start time
@@ -22,24 +28,22 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
      * @return the list of tasks to be performed in the specified period of time
      * @throws IllegalArgumentException generated exception if 'from' or 'to' is wrong
      */
-    public AbstractTaskList incoming(int from, int to) throws IllegalArgumentException {
+    public final AbstractTaskList incoming(int from, int to) throws IllegalArgumentException {
 
         if(from<0) throw new IllegalArgumentException("Time 'from' must be above zero");
         if(to<0) throw new IllegalArgumentException("Time 'to' must be above zero");
         if(to<from) throw new IllegalArgumentException("Time 'to' must be above time 'from'");
 
-        ListTypes.types typeLists = TaskListFactory.getTypeTaskList(this);
-        AbstractTaskList subTaskList = TaskListFactory.createTaskList( typeLists );
+        AbstractTaskList subTaskList = getCopyInstance(this);
 
-        for (Task task: this) {
-            int timeNextStart = task.nextTimeAfter(from);
-            if(timeNextStart >= 0 && timeNextStart < to){
-                subTaskList.add(task);
-            }
-        }
+        this.getStream().filter(x -> x.nextTimeAfter(from)>=0 && x.nextTimeAfter(from)<to).forEach(subTaskList::add);
         return subTaskList;
     };
 
+    /**
+     *
+     * @return string line with text info about list of tasks
+     */
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
@@ -53,6 +57,11 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
         return result.toString();
     };
 
+    /**
+     *
+     * @param o object to compare
+     * @return if current list equals o return true else false
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,6 +79,10 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
         return result;
     };
 
+    /**
+     *
+     * @return hash code current list of tasks
+     */
     @Override
     public int hashCode() {
         int result = 0;
@@ -79,14 +92,19 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
         return result;
     }
 
+    /**
+     *
+     * @return clone current list of tasks
+     */
     @Override
     public AbstractTaskList clone() {
-        ListTypes.types typeLists = TaskListFactory.getTypeTaskList(this);
-        AbstractTaskList cloneTaskList = TaskListFactory.createTaskList( typeLists );
+        AbstractTaskList cloneTaskList = getCopyInstance(this);
 
         for (Task task: this) {
             cloneTaskList.add(task.clone());
         }
         return cloneTaskList;
     }
+
+    public abstract Stream<Task> getStream();
 }

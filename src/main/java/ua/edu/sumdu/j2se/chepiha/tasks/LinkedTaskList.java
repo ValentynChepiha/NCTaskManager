@@ -9,8 +9,10 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 public class LinkedTaskList extends AbstractTaskList {
 
@@ -151,6 +153,10 @@ public class LinkedTaskList extends AbstractTaskList {
         return ( index <= sizeList / 2) ? this.searchUp(index) : this.searchDown(index);
     }
 
+    /**
+     *
+     * @return iterator for list of task
+     */
     @Override
     public Iterator<Task> iterator() {
         return new IteratorList();
@@ -185,5 +191,22 @@ public class LinkedTaskList extends AbstractTaskList {
             currentIndex--;
             removeCurrentNode(currentNode.prev);
         }
+    }
+
+    /**
+     *
+     * @return stream for list of task
+     * @throws NoSuchElementException if list is empty
+     */
+    @Override
+    public Stream<Task> getStream() throws NoSuchElementException {
+        if (sizeList == 0)
+            throw new NoSuchElementException();
+
+        ArrayList<Task> collection = new ArrayList<>();
+        for (Task task: this) {
+            collection.add(task);
+        }
+        return collection.stream();
     }
 }
