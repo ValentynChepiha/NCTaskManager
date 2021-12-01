@@ -15,14 +15,14 @@ public class Main {
 //		newList.add(new Task("C2", 9 , 15, 2));
 //		newList.add(new Task("D2", 2, 19, 3 ));
 //
-//		AbstractTaskList newList2 = new ArrayTaskList();
+		AbstractTaskList newList2 = new ArrayTaskList();
 
-//		newList2.add(new Task("A2", 15 ));
-//		newList2.add(new Task("B2", 10 ));
-//		newList2.add(new Task("C2", 9 , 15, 2));
-//		newList2.add(new Task("D2", 2, 19, 3 ));
-//
-//		newList2.getStream().filter(Task::isRepeated).forEach(System.out::println);
+		newList2.add(new Task("A2", 15 ));
+		newList2.add(new Task("B2", 10 ));
+		newList2.add(new Task("C2", 9 , 15, 2));
+		newList2.add(new Task("D2", 2, 19, 3 ));
+
+		newList2.getStream().filter(Objects::nonNull).filter(Task::isRepeated).forEach(System.out::println);
 
 //		Iterator<Task> task = newList.iterator();
 //		while(task.hasNext()){

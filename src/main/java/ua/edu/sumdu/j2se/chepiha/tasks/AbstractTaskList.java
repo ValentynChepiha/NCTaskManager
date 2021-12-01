@@ -6,6 +6,7 @@
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
@@ -36,7 +37,9 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
 
         AbstractTaskList subTaskList = getCopyInstance(this);
 
-        this.getStream().filter(x -> x.nextTimeAfter(from)>=0 && x.nextTimeAfter(from)<to).forEach(subTaskList::add);
+        this.getStream()
+                .filter(x -> x.nextTimeAfter(from)>=0 && x.nextTimeAfter(from)<to)
+                .forEach(subTaskList::add);
         return subTaskList;
     };
 

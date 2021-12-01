@@ -163,11 +163,6 @@ public class ArrayTaskList extends AbstractTaskList {
         if (sizeList == 0)
             throw new NoSuchElementException();
 
-        ArrayList<Task> collection = new ArrayList<>();
-        for (Task task: this) {
-            if(task != null)
-                collection.add(task);
-        }
-        return collection.stream();
+        return Arrays.stream(taskList).filter(Objects::nonNull);
     }
 }
