@@ -14,8 +14,8 @@ import java.util.stream.Stream;
 
 public class ArrayTaskList extends AbstractTaskList {
 
-    private final float DELTA_SIZE_LIST = 1.5f;
-    private final int START_LENGTH_LIST = 10;
+    private static final float DELTA_SIZE_LIST = 1.5f;
+    private static final int START_LENGTH_LIST = 10;
 
     private Task[] taskList;
     private int sizeList = 0;
@@ -66,9 +66,21 @@ public class ArrayTaskList extends AbstractTaskList {
         Task[] newTaskList = new Task[taskList.length];
         if(indexDeleteTask > 0){
             System.arraycopy(taskList, 0, newTaskList, 0, indexDeleteTask);
-            System.arraycopy(taskList, indexDeleteTask+1, newTaskList, indexDeleteTask, taskList.length-indexDeleteTask - 1);
+            System.arraycopy(
+                    taskList,
+                    indexDeleteTask+1,
+                    newTaskList,
+                    indexDeleteTask,
+                    taskList.length-indexDeleteTask - 1
+            );
         } else {
-            System.arraycopy(taskList, indexDeleteTask+1, newTaskList, 0, taskList.length-indexDeleteTask - 1);
+            System.arraycopy(
+                    taskList,
+                    indexDeleteTask+1,
+                    newTaskList,
+                    0,
+                    taskList.length-indexDeleteTask - 1
+            );
         }
         sizeList--;
         return newTaskList;
