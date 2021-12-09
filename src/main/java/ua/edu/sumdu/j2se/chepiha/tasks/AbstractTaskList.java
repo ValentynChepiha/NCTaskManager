@@ -23,25 +23,6 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
 
     /**
      *
-     * @param from start time
-     * @param to end time
-     * @return the list of tasks to be performed in the specified period of time
-     * @throws IllegalArgumentException generated exception if 'from' or 'to' is wrong
-     */
-    public final AbstractTaskList incoming(int from, int to) throws IllegalArgumentException {
-
-        if(from<0) throw new IllegalArgumentException("Time 'from' must be above zero");
-        if(to<0) throw new IllegalArgumentException("Time 'to' must be above zero");
-        if(to<from) throw new IllegalArgumentException("Time 'to' must be above time 'from'");
-
-        AbstractTaskList subTaskList = getCopyInstance(this);
-
-        this.getStream().filter(x -> x.nextTimeAfter(from)>=0 && x.nextTimeAfter(from)<to).forEach(subTaskList::add);
-        return subTaskList;
-    };
-
-    /**
-     *
      * @return string line with text info about list of tasks
      */
     @Override

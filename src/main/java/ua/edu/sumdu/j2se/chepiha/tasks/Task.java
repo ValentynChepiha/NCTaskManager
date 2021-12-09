@@ -8,15 +8,18 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
-    private static final int DEFAULT_TIME_VALUE = -1;
-    private static final int RESULT_WRONG = -1;
+    private static final LocalDateTime DEFAULT_TIME_VALUE = LocalDateTime.MIN;
+    private static final int DEFAULT_INTERVAL_VALUE = -1;
     private static final int RESULT_ZERO = 0;
 
     private String title;
-    private int time;
-    private int start;
-    private int end;
+    private LocalDateTime time;
+    private LocalDateTime start;
+    private LocalDateTime end;
     private int interval;
     private boolean activeTask = false;
 
@@ -25,9 +28,9 @@ public class Task {
      * @param title     task name
      * @param time      the time for a one-time task
      */
-    public Task(String title, int time) throws IllegalArgumentException {
-
-        if(time<0) throw new IllegalArgumentException("Time must be above zero");
+    public Task(String title, LocalDateTime time) throws IllegalArgumentException {
+        if(time == null) throw new IllegalArgumentException("Time must be not null");
+        if(title == null || title.trim().equals("")) throw new IllegalArgumentException("Title must be not null");
 
         setDefaultRepeatedTime();
 
@@ -42,12 +45,13 @@ public class Task {
      * @param end the end time of the recurring task
      * @param interval a period of time to repeat the task
      */
-    public Task(String title, int start, int end, int interval) throws IllegalArgumentException {
+    public Task(String title, LocalDateTime start, LocalDateTime end, int interval) throws IllegalArgumentException {
+        if(start == null) throw new IllegalArgumentException("Time start must be not null");
+        if(end == null) throw new IllegalArgumentException("Time end must be not null");
+        if(end.isBefore(start)) throw new IllegalArgumentException("Time end must be above time start");
 
-        if(start<0) throw new IllegalArgumentException("Time start must be above zero");
-        if(end<0) throw new IllegalArgumentException("Time end must be above zero");
+        if(title == null || title.trim().equals("")) throw new IllegalArgumentException("Title must be not null");
         if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
-        if(end<start) throw new IllegalArgumentException("Time end must be above time start");
 
         setDefaultNotRepeatedTime();
 
@@ -57,15 +61,14 @@ public class Task {
         this.interval = interval;
     }
 
-    private void setDefaultNotRepeatedTime()
-    {
+    private void setDefaultNotRepeatedTime() {
         time = DEFAULT_TIME_VALUE;
     }
 
     private void setDefaultRepeatedTime() {
         start = DEFAULT_TIME_VALUE;
         end = DEFAULT_TIME_VALUE;
-        interval = DEFAULT_TIME_VALUE;
+        interval = DEFAULT_INTERVAL_VALUE;
     }
 
     /**
@@ -107,17 +110,16 @@ public class Task {
      *
      * @return time to start a one-time task
      */
-    public int getTime() {
-        return (start > DEFAULT_TIME_VALUE) ? start : time;
+    public LocalDateTime getTime() {
+        return start.isAfter(DEFAULT_TIME_VALUE) ? start : time;
     }
 
     /**
      *
      * @param time the time for a one-time task
      */
-    public void setTime(int time) throws IllegalArgumentException {
-
-        if(time <0) throw new IllegalArgumentException("Time must be above zero");
+    public void setTime(LocalDateTime time) throws IllegalArgumentException {
+        if(time == null) throw new IllegalArgumentException("Time must be not null");
 
         setDefaultRepeatedTime();
         this.time = time;
@@ -127,16 +129,16 @@ public class Task {
      *
      * @return return time to start the task
      */
-    public int getStartTime() {
-        return (start > DEFAULT_TIME_VALUE) ? start : time;
+    public LocalDateTime getStartTime() {
+        return start.isAfter(DEFAULT_TIME_VALUE) ? start : time;
     }
 
     /**
      *
      * @return return time to end the task
      */
-    public int getEndTime() {
-        return (end > DEFAULT_TIME_VALUE) ? end : time;
+    public LocalDateTime getEndTime() {
+        return end.isAfter(DEFAULT_TIME_VALUE) ? end : time;
     }
 
     /**
@@ -144,21 +146,21 @@ public class Task {
      * @return return the interval to repeat the task, if task runs once return 0
      */
     public int getRepeatInterval() {
-        return (interval > DEFAULT_TIME_VALUE) ? interval : RESULT_ZERO ;
+        return (interval > DEFAULT_INTERVAL_VALUE) ? interval : RESULT_ZERO ;
     }
 
     /**
      *
      * @param start the start time of the recurring task
      * @param end the end time of the recurring task
-     * @param interval a period of time to repeat the task
+     * @param interval seconds to repeat the task
      */
-    public void setTime(int start, int end, int interval) throws IllegalArgumentException {
+    public void setTime(LocalDateTime start, LocalDateTime end, int interval) throws IllegalArgumentException {
+        if(start == null) throw new IllegalArgumentException("Time start must be not null");
+        if(end == null) throw new IllegalArgumentException("Time end must be not null");
+        if(end.isBefore(start)) throw new IllegalArgumentException("Time end must be above time start");
 
-        if(start<0) throw new IllegalArgumentException("Time start must be above zero");
-        if(end<0) throw new IllegalArgumentException("Time end must be above zero");
         if(interval<0) throw new IllegalArgumentException("Interval must be above zero");
-        if(end<start) throw new IllegalArgumentException("Time end must be above time start");
 
         setDefaultNotRepeatedTime();
 
@@ -172,47 +174,45 @@ public class Task {
      * @return return true if the task is recurring else return false
      */
     public boolean isRepeated() {
-        return start > DEFAULT_TIME_VALUE;
+        return start.isAfter(DEFAULT_TIME_VALUE);
     }
 
-    private int calculateNextStart (int current) {
-        int deltaTime = current - start;
-        int wholePart = (int)deltaTime / interval;
+    private LocalDateTime calculateNextStart (LocalDateTime current) {
+        long deltaTime = Duration.between(start, current).getSeconds();
+        long wholePart = (long)deltaTime / interval;
 
         if(wholePart * interval <= deltaTime )
             wholePart++;
 
-        return wholePart * interval + start;
+        return start.plusSeconds(wholePart * interval);
     }
 
-    private int getNextRepeatedTime(int current) {
-        if(current < start)
+    private LocalDateTime getNextRepeatedTime(LocalDateTime current) {
+        if(current.isBefore(start))
             return start;
-        if(current > end)
-            return RESULT_WRONG;
+        if(current.isAfter(end))
+            return null;
+        LocalDateTime nextTime = calculateNextStart(current);
 
-        int nextTime = calculateNextStart(current);
-
-        return (nextTime > end) ? RESULT_WRONG : nextTime;
+        return nextTime.isAfter(end) ? null : nextTime;
     }
 
-    private int getNextNotRepeatedTime(int current) {
-        return (current >= time) ? RESULT_WRONG : time;
+    private LocalDateTime getNextNotRepeatedTime(LocalDateTime current) {
+        return time.isAfter(current) ? time : null;
     }
 
     /**
      *
      * @param current time to next start the task
-     * @return return the time to next start the task, or -1 if the task never will be starting
+     * @return return the time to next start the task, or null if the task never will be starting
      */
-    public int nextTimeAfter (int current) throws IllegalArgumentException {
-
-        if(current <0) throw new IllegalArgumentException("Current time must be above zero");
+    public LocalDateTime nextTimeAfter (LocalDateTime current) throws IllegalArgumentException {
+        if(current == null) throw new IllegalArgumentException("Current time must be not null");
 
         if(!activeTask)
-            return RESULT_WRONG;
+            return null;
 
-        return (time > DEFAULT_TIME_VALUE) ? getNextNotRepeatedTime(current) : getNextRepeatedTime(current);
+        return time.isAfter(DEFAULT_TIME_VALUE) ? getNextNotRepeatedTime(current) : getNextRepeatedTime(current);
     }
 
     /**
@@ -223,10 +223,10 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "title='" + title + '\'' +
-                (time < 0 ? "" : ", time=" + time) +
-                (start < 0 ? "" : ", start=" + start) +
-                (end < 0 ? "" : ", end=" + end) +
-                (interval < 0 ? "" : ", interval=" + interval) +
+                (time.isAfter(DEFAULT_TIME_VALUE) ? ", time=" + time : "") +
+                (start.isAfter(DEFAULT_TIME_VALUE) ? ", start=" + start : "") +
+                (end.isAfter(DEFAULT_TIME_VALUE) ? ", end=" + end : "") +
+                (interval > DEFAULT_INTERVAL_VALUE ? ", interval=" + interval : "") +
                 ", activeTask=" + activeTask +
                 '}';
     }
@@ -241,9 +241,9 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return time == task.time
-                && start == task.start
-                && end == task.end
+        return time.equals(task.time)
+                && start.equals(task.start)
+                && end.equals(task.end)
                 && interval == task.interval
                 && activeTask == task.activeTask
                 && title.equals(task.title);
@@ -258,9 +258,9 @@ public class Task {
         int salt = 31;
         int result = 7;
         result = salt * result + title.hashCode();
-        result = salt * result + time;
-        result = salt * result + start;
-        result = salt * result + end;
+        result = salt * result + time.getSecond();
+        result = salt * result + start.getSecond();
+        result = salt * result + end.getSecond();
         result = salt * result + interval;
         result = salt * result + (activeTask ? 1 : 0);
         return result;

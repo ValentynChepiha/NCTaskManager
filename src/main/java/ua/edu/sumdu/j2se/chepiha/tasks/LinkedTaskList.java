@@ -203,10 +203,10 @@ public class LinkedTaskList extends AbstractTaskList {
         if (sizeList == 0)
             throw new NoSuchElementException();
 
-        ArrayList<Task> collection = new ArrayList<>();
+        Stream.Builder<Task> collection = Stream.builder();
         for (Task task: this) {
             collection.add(task);
         }
-        return collection.stream();
+        return collection.build();
     }
 }
