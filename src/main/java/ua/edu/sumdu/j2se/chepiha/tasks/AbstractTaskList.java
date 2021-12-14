@@ -5,14 +5,17 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
+public abstract class AbstractTaskList implements Iterable<Task>, Cloneable, Serializable {
     public abstract void add(Task task);
     public abstract boolean remove(Task task);
     public abstract int size();
     public abstract Task getTask(int index);
+
+    private static final long SerialVersionUID = 1;
 
     public abstract Iterator<Task> iterator();
 
@@ -27,14 +30,20 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable {
      */
     @Override
     public String toString() {
+        if(this.size() == 0)
+            return "List is empty";
+
         StringBuilder result = new StringBuilder();
 
         String[] classInfoArray = this.getClass().toString().split(" ")[1].split("\\.");
 
-        result.append("ListTask type of ").append(classInfoArray[classInfoArray.length-1]).append("\n").append("Elements:\n");
-        for (Task task: this) {
-            result.append(task).append("\n");
-        }
+        result.append("ListTask type of ")
+                .append(classInfoArray[classInfoArray.length-1])
+                .append("\n")
+                .append("Elements:\n");
+
+        this.forEach(task -> result.append(task).append("\n"));
+
         return result.toString();
     };
 
