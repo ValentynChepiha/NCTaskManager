@@ -8,10 +8,11 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Task {
+public class Task implements Serializable {
     private static final LocalDateTime DEFAULT_TIME_VALUE = LocalDateTime.MIN;
     private static final int DEFAULT_INTERVAL_VALUE = -1;
     private static final int RESULT_ZERO = 0;
