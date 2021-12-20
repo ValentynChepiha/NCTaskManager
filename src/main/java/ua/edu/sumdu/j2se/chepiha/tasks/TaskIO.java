@@ -14,7 +14,6 @@ import java.util.Arrays;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-// todo: використати версію для серіалізації
 public class TaskIO {
     /**
      *
@@ -93,7 +92,7 @@ public class TaskIO {
      * @param file it is a result, binary format
      */
     public static void writeBinary(AbstractTaskList tasks, File file){
-        try (ObjectOutputStream fileOut = new ObjectOutputStream(new FileOutputStream(file))) {
+        try (FileOutputStream fileOut = new FileOutputStream(file)) {
             TaskIO.write(tasks, fileOut);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -108,7 +107,7 @@ public class TaskIO {
      * @param file with data, binary format
      */
     public static void readBinary(AbstractTaskList tasks, File file){
-        try (ObjectInputStream fileIn = new ObjectInputStream(new FileInputStream(file))) {
+        try (FileInputStream fileIn = new FileInputStream(file)) {
             TaskIO.read(tasks, fileIn);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -123,7 +122,7 @@ public class TaskIO {
      * @param out output stream, it is a result, JSON format
      */
     public static void write(AbstractTaskList tasks, Writer out){
-        Gson gson = new GsonBuilder().create();
+        Gson gson = new Gson();
         String json = gson.toJson(tasks);
         try {
             out.write(json);
