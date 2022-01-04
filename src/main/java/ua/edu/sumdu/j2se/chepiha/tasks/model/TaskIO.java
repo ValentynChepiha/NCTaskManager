@@ -3,16 +3,15 @@
  * @autor Valentyn Chepiha
  *
  */
-package ua.edu.sumdu.j2se.chepiha.tasks;
+package ua.edu.sumdu.j2se.chepiha.tasks.model;
 
-import ua.edu.sumdu.j2se.chepiha.tasks.interfaces.LocalDateTimeFromString;
-import ua.edu.sumdu.j2se.chepiha.tasks.interfaces.LocalDateTimeToString;
+import ua.edu.sumdu.j2se.chepiha.tasks.model.interfaces.LocalDateTimeFromString;
+import ua.edu.sumdu.j2se.chepiha.tasks.model.interfaces.LocalDateTimeToString;
 
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class TaskIO {
     /**

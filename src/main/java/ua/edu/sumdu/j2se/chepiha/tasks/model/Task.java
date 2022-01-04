@@ -6,7 +6,7 @@
  * The object has methods to adding, enabling, disabling the task.
  * You can change parameters the task: name, start, end or interval.
  */
-package ua.edu.sumdu.j2se.chepiha.tasks;
+package ua.edu.sumdu.j2se.chepiha.tasks.model;
 
 import java.io.Serializable;
 import java.time.Duration;

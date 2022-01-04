@@ -1,35 +1,28 @@
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
-import java.io.*;
-import java.time.LocalDateTime;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
+import java.net.URL;
 
-	public static void main(String[] args) throws IOException {
+public class Main extends Application {
+
+	public static void main(String[] args) {
 		System.out.println("This is a Main from Task ;)");
+		launch(args);
+	}
 
-//		LocalDateTime TIME_NOW = LocalDateTime.now();
-//		LocalDateTime TIME_NOW_100 = TIME_NOW.plusSeconds(10);
-//		LocalDateTime TIME_NOW_200 = TIME_NOW.plusSeconds(20);
-//		LocalDateTime TIME_NOW_300 = TIME_NOW.plusSeconds(30);
-//		LocalDateTime TIME_TOMORROW = TIME_NOW.plusDays(1);
-//
-//		AbstractTaskList tasks = new ArrayTaskList();
-//		AbstractTaskList tasksResult = new ArrayTaskList();
-//		Task taskA = new Task("A", TIME_NOW_300);
-//		Task taskB = new Task("B", TIME_NOW, TIME_TOMORROW, 3600);
-//		Task taskC = new Task("C", TIME_NOW_200);
-//		Task taskD = new Task("D", TIME_NOW_100, TIME_TOMORROW, 3600);
-//
-//		tasks.add(taskA);
-//		tasks.add(taskB);
-//		tasks.add(taskC);
-//		tasks.add(taskD);
-//
-//		TaskIO.writeText(tasks, new File("test3_in.json"));
-//		TaskIO.readText(tasksResult, new File("test3_in.json"));
-//
-//		System.out.println("Result all :: " + tasksResult);
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		URL resource = getClass().getClassLoader().getResource("TasksForm.fxml");
+		Parent root = FXMLLoader.load(resource);
+		primaryStage.setTitle("Tasks");
+		primaryStage.setScene(new Scene(root, 600, 480));
+		primaryStage.setResizable(false);
+		primaryStage.show();
 	}
 }
 
