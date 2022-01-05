@@ -7,7 +7,7 @@
  * You can get the size of the list, information about the task in the Array
  * and the Array of tasks it performs between two current moments.
  */
-package ua.edu.sumdu.j2se.chepiha.tasks.model;
+package ua.edu.sumdu.j2se.chepiha.tasks.models;
 
 import java.util.*;
 import java.util.stream.Stream;

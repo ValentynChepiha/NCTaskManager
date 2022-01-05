@@ -3,7 +3,7 @@
  * @autor Valentyn Chepiha
  *
  */
-package ua.edu.sumdu.j2se.chepiha.tasks.model;
+package ua.edu.sumdu.j2se.chepiha.tasks.models;
 
 import java.time.LocalDateTime;
 import java.util.*;

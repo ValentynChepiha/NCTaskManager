@@ -3,10 +3,10 @@
  * @autor Valentyn Chepiha
  *
  */
-package ua.edu.sumdu.j2se.chepiha.tasks.model;
+package ua.edu.sumdu.j2se.chepiha.tasks.models;
 
-import ua.edu.sumdu.j2se.chepiha.tasks.model.interfaces.LocalDateTimeFromString;
-import ua.edu.sumdu.j2se.chepiha.tasks.model.interfaces.LocalDateTimeToString;
+import ua.edu.sumdu.j2se.chepiha.tasks.models.interfaces.LocalDateTimeFromString;
+import ua.edu.sumdu.j2se.chepiha.tasks.models.interfaces.LocalDateTimeToString;
 
 import java.io.*;
 import java.time.LocalDateTime;

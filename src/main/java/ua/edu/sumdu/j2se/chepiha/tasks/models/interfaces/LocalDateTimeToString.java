@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.chepiha.tasks.model.interfaces;
+package ua.edu.sumdu.j2se.chepiha.tasks.models.interfaces;
 
 import java.time.LocalDateTime;
 
