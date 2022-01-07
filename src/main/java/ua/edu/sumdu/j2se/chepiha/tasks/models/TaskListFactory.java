@@ -6,6 +6,8 @@
 
 package ua.edu.sumdu.j2se.chepiha.tasks.models;
 
+import ua.edu.sumdu.j2se.chepiha.tasks.types.ListTypes;
+
 public class TaskListFactory {
 
     /**
@@ -13,7 +15,7 @@ public class TaskListFactory {
      * @param taskList ListTask
      * @return type of ListTask, if unknown type of ListTask then returned null
      */
-    public static ListTypes.types getTypeTaskList( AbstractTaskList taskList) throws IllegalArgumentException {
+    public static ListTypes.types getTypeTaskList(AbstractTaskList taskList) throws IllegalArgumentException {
         if (taskList instanceof ArrayTaskList)
             return ListTypes.types.ARRAY;
         if (taskList instanceof LinkedTaskList)

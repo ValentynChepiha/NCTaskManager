@@ -10,13 +10,13 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="478.0" prefWidth="367.0">
                <children>
-                  <CheckBox fx:id="chkCalendar" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" text="calendar" />
+                  <CheckBox fx:id="chkCalendar" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" text="Calendar" />
                   <Label layoutX="97.0" layoutY="6.0" text="from" />
                   <Label layoutX="99.0" layoutY="33.0" text="to" />
                   <ListView fx:id="lvTasks" layoutY="56.0" prefHeight="421.0" prefWidth="357.0" />
                   <LocalDateTimeTextField fx:id="dtStartCalendar" layoutX="131.0" layoutY="2.0" prefHeight="25.0" prefWidth="157.0" />
                   <LocalDateTimeTextField fx:id="dtEndCalendar" layoutX="131.0" layoutY="29.0" prefHeight="25.0" prefWidth="157.0" />
-                  <Button fx:id="btnShowCalendar" layoutX="297.0" layoutY="16.0" mnemonicParsing="false" text="Show" />
+                  <Button fx:id="btnShowCalendar" layoutX="301.0" layoutY="16.0" mnemonicParsing="false" text="Show" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="478.0" prefWidth="228.0">

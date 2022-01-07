@@ -5,6 +5,8 @@
  */
 package ua.edu.sumdu.j2se.chepiha.tasks.models;
 
+import ua.edu.sumdu.j2se.chepiha.tasks.types.ListTypes;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.stream.Stream;

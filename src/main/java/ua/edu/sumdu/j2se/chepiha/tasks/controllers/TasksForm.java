@@ -5,9 +5,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import jfxtras.scene.control.LocalDateTimeTextField;
-import ua.edu.sumdu.j2se.chepiha.tasks.models.LinkedTaskList;
+import ua.edu.sumdu.j2se.chepiha.tasks.models.AbstractTaskList;
+import ua.edu.sumdu.j2se.chepiha.tasks.models.ArrayTaskList;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.Task;
 import ua.edu.sumdu.j2se.chepiha.tasks.services.ModalWindow;
+import ua.edu.sumdu.j2se.chepiha.tasks.types.SaveTaskTypes;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,10 +17,12 @@ import java.util.regex.Pattern;
 
 public class TasksForm {
 
-    private final LinkedTaskList tasks = new LinkedTaskList();
+    private final AbstractTaskList tasks = new ArrayTaskList();
     private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final Pattern INTERVAL_VALUE_FORMAT = Pattern.compile("^([1-9](\\d)*)?$");
     private final Pattern DATE_VALUE_FORMAT = Pattern.compile("^([2]\\d{3}-(0|1)\\d-[0123]\\d [012]\\d:[0-6]\\d:[0-6]\\d)?$");
+    private int selectedItem = -1;
+    private SaveTaskTypes.types typeSave;
 
     @FXML
     private CheckBox chkCalendar;
@@ -105,17 +109,59 @@ public class TasksForm {
     }
 
     @FXML
-    private void setVisibleFormTasksFields(boolean visible){
-        tLabelName.setVisible(visible);
-        tName.setVisible(visible);
-        tActive.setVisible(visible);
-        tRepeat.setVisible(visible);
-        tLabelStartTime.setVisible(visible);
-        tStartTime.setVisible(visible);
-        tLabelEndTime.setVisible(visible);
-        tEndTime.setVisible(visible);
-        tLabelInterval.setVisible(visible);
-        tInterval.setVisible(visible);
+    private void setVisibleFormTasksFields(){
+        tLabelName.setVisible(true);
+        tName.setVisible(true);
+        tActive.setVisible(true);
+        tRepeat.setVisible(true);
+        tLabelStartTime.setVisible(true);
+        tStartTime.setVisible(true);
+        tLabelEndTime.setVisible(true);
+        tEndTime.setVisible(true);
+        tLabelInterval.setVisible(true);
+        tInterval.setVisible(true);
+    }
+
+    @FXML
+    private void setHideFormTasksFields(){
+        tLabelName.setVisible(false);
+        tName.setVisible(false);
+        tActive.setVisible(false);
+        tRepeat.setVisible(false);
+        tLabelStartTime.setVisible(false);
+        tStartTime.setVisible(false);
+        tLabelEndTime.setVisible(false);
+        tEndTime.setVisible(false);
+        tLabelInterval.setVisible(false);
+        tInterval.setVisible(false);
+    }
+
+    @FXML
+    private void setDisableFormTasksFields(){
+        tLabelName.setDisable(true);
+        tName.setDisable(true);
+        tActive.setDisable(true);
+        tRepeat.setDisable(true);
+        tLabelStartTime.setDisable(true);
+        tStartTime.setDisable(true);
+        tLabelEndTime.setDisable(true);
+        tEndTime.setDisable(true);
+        tLabelInterval.setDisable(true);
+        tInterval.setDisable(true);
+    }
+
+    @FXML
+    private void setEnableFormTasksFields(){
+        tLabelName.setDisable(false);
+        tName.setDisable(false);
+        tActive.setDisable(false);
+        tRepeat.setDisable(false);
+        tLabelStartTime.setDisable(false);
+        tStartTime.setDisable(false);
+        tLabelEndTime.setDisable(false);
+        tEndTime.setDisable(false);
+        tLabelInterval.setDisable(false);
+        tInterval.setDisable(false);
     }
 
     @FXML
@@ -123,8 +169,8 @@ public class TasksForm {
         btnEdit.setDisable(true);
         btnCreate.setDisable(false);
 
-        setVisibleButtonsEdit(false);
-        setVisibleFormTasksFields(false);
+        setHideButtonsEdit();
+        setHideFormTasksFields();
     }
 
     @FXML
@@ -163,17 +209,39 @@ public class TasksForm {
     }
 
     @FXML
-    private void setVisibleButtonsCreate(boolean visible){
-        btnSave.setVisible(visible);
-        btnCancel.setVisible(visible);
+    private void setVisibleButtonsCreate(){
+        btnSave.setVisible(true);
+        btnCancel.setVisible(true);
     }
     
     @FXML
-    private void setVisibleButtonsEdit(boolean visible){
-        setVisibleButtonsCreate(visible);
-        btnDelete.setVisible(visible);
+    private void setHideButtonsCreate(){
+        btnSave.setVisible(false);
+        btnCancel.setVisible(false);
+    }
+
+    @FXML
+    private void setVisibleButtonsEdit(){
+        setVisibleButtonsCreate();
+        btnDelete.setVisible(true);
     }
     
+    @FXML
+    private void setHideButtonsEdit(){
+        setHideButtonsCreate();
+        btnDelete.setVisible(false);
+    }
+
+    @FXML
+    private void setDisableListView(){
+        lvTasks.setDisable(true);
+    }
+
+    @FXML
+    private void setEnableListView(){
+        lvTasks.setDisable(false);
+    }
+
     @FXML
     private void initEmptyListView(){
         lvTasks.setDisable(tasks.size() <= 0);
@@ -217,12 +285,40 @@ public class TasksForm {
     }
 
     @FXML
-    private void loadTasksList(){
+    private void loadTasksList(AbstractTaskList taskList){
         ObservableList<String> names = FXCollections.observableArrayList();
-        tasks.forEach(task ->names.add(task.toString()));
+        taskList.forEach(task ->names.add(task.toString()));
 
         lvTasks.setItems(names);
         initEmptyListView();
+    }
+
+    @FXML
+    private void loadTaskEdit(Task task){
+        if (task == null)
+            return;
+
+        btnEdit.setDisable(false);
+        btnCreate.setDisable(false);
+        setVisibleFormTasksFields();
+        setDisableFormTasksFields();
+
+        tName.setText(task.getTitle());
+        tActive.setSelected(task.isActive());
+        if(task.isRepeated()){
+            tRepeat.setSelected(true);
+            tStartTime.setLocalDateTime(task.getStartTime());
+            tEndTime.setLocalDateTime(task.getEndTime());
+            tInterval.setText("" + task.getRepeatInterval());
+
+            initFormTaskRepeat();
+        }
+        else {
+            tRepeat.setSelected(false);
+            tStartTime.setLocalDateTime(task.getStartTime());
+
+            initFormTaskOnce();
+        }
     }
 
     @FXML
@@ -230,6 +326,11 @@ public class TasksForm {
         initCalendar();
         initTask();
         initEmptyListView();
+
+        tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
+                tInterval.setText(oldValue);
+        });
 
         chkCalendar.setOnAction(event -> {
             btnShowCalendar.setDisable( !btnShowCalendar.isDisabled() );
@@ -242,10 +343,22 @@ public class TasksForm {
             btnCreate.setDisable(false);
         });
 
+        lvTasks.setOnMouseClicked(event -> {
+            int currentItem = lvTasks.getSelectionModel().getSelectedIndex();
+            if(currentItem >= 0 && currentItem != selectedItem ){
+                selectedItem = currentItem;
+                loadTaskEdit(tasks.getTask(selectedItem));
+            }
+        });
+
         btnEdit.setOnAction(event -> {
             btnCreate.setDisable(true);
+            btnEdit.setDisable(true);
+            typeSave = SaveTaskTypes.types.EDIT;
 
-            setVisibleButtonsEdit(true);
+            setDisableListView();
+            setVisibleButtonsEdit();
+            setEnableFormTasksFields();
         });
 
         tRepeat.setOnAction(event -> {
@@ -254,11 +367,6 @@ public class TasksForm {
             } else {
                 initFormTaskOnce();
             }
-        });
-
-        tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
-                tInterval.setText(oldValue);
         });
 
         // todo:
@@ -277,9 +385,11 @@ public class TasksForm {
         btnCreate.setOnAction(event -> {
             btnEdit.setDisable(true);
             btnCreate.setDisable(true);
+            typeSave = SaveTaskTypes.types.CREATE;
 
-            setVisibleButtonsCreate(true);
-            setVisibleFormTasksFields(true);
+            setDisableListView();
+            setVisibleButtonsCreate();
+            setVisibleFormTasksFields();
             initFormTaskOnce();
             setDefaultFormTasksFields();
         });
@@ -289,34 +399,42 @@ public class TasksForm {
             btnCreate.setDisable(false);
 
             setDefaultFormTasksFields();
-            setVisibleFormTasksFields(false);
-            setVisibleButtonsCreate(false);
+            setHideFormTasksFields();
+            setHideButtonsEdit();
+            setEnableListView();
         });
 
         btnSave.setOnAction(event -> {
             if (!isVerifyTask())
                 return;
 
-            String taskName = tName.getText();
             Task newTask;
+            String taskName = tName.getText();
+            LocalDateTime time = tStartTime.getLocalDateTime();
+            if(typeSave == SaveTaskTypes.types.CREATE){
+                newTask = new Task(taskName, time);
+            } else {
+                newTask = tasks.getTask(selectedItem);
+                newTask.setTitle(taskName);
+                newTask.setTime(time);
+            }
+            newTask.setActive(tActive.isSelected());
+
             if(tRepeat.isSelected()){
                 LocalDateTime timeStart = tStartTime.getLocalDateTime();
                 LocalDateTime timeEnd = tEndTime.getLocalDateTime();
                 int interval = Integer.parseInt(tInterval.getText());
-                newTask = new Task(taskName, timeStart, timeEnd, interval);
-            } else {
-                LocalDateTime time = tStartTime.getLocalDateTime();
-                newTask = new Task(taskName, time);
+
+                newTask.setTime(timeStart, timeEnd, interval);
             }
-            newTask.setActive(tActive.isSelected());
 
-            tasks.add(newTask);
+            if(typeSave == SaveTaskTypes.types.CREATE){
+                tasks.add(newTask);
+            }
             initTaskField();
+            setEnableListView();
 
-//            todo:
-            loadTasksList();
-            lvTasks.refresh();
-
+            loadTasksList(tasks);
             System.out.println(tasks);
         });
     }
