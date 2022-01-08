@@ -388,6 +388,7 @@ public class TasksForm {
             typeSave = SaveTaskTypes.types.CREATE;
 
             setDisableListView();
+            setEnableFormTasksFields();
             setVisibleButtonsCreate();
             setVisibleFormTasksFields();
             initFormTaskOnce();
@@ -433,9 +434,18 @@ public class TasksForm {
             }
             initTaskField();
             setEnableListView();
-
             loadTasksList(tasks);
-            System.out.println(tasks);
+        });
+
+        btnDelete.setOnAction(event -> {
+            Task task = tasks.getTask(selectedItem);
+            if(ModalWindow.showConfirmDelete(task.toString())){
+                tasks.remove(task);
+                initTaskField();
+                setEnableListView();
+                loadTasksList(tasks);
+                selectedItem = -1;
+            }
         });
     }
 
