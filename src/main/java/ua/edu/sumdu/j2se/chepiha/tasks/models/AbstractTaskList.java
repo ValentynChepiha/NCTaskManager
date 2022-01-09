@@ -16,6 +16,7 @@ public abstract class AbstractTaskList implements Iterable<Task>, Cloneable, Ser
     public abstract boolean remove(Task task);
     public abstract int size();
     public abstract Task getTask(int index);
+    public abstract void clear();
 
     private static final long SerialVersionUID = 1;
 

@@ -25,7 +25,6 @@ public class ModalWindow {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, msgError, ButtonType.YES, ButtonType.NO);
         alert.setTitle("Task delete");
         alert.setHeaderText("Do you want to delete:");
-//        alert.setContentText(msgError);
         alert.showAndWait();
         return alert.getResult() == ButtonType.YES;
     }

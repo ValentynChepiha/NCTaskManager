@@ -1,6 +1,7 @@
 package ua.edu.sumdu.j2se.chepiha.tasks;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		Platform.setImplicitExit(true);
 		URL resource = getClass().getClassLoader().getResource("TasksForm.fxml");
 		Parent root = FXMLLoader.load(resource);
 		primaryStage.setTitle("Tasks");

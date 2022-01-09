@@ -28,6 +28,9 @@ public class TaskIO {
 
         try (DataOutputStream output = new DataOutputStream(out)) {
             output.writeInt(tasks.size());
+            if(tasks.size()==0){
+                return;
+            }
             for (Task task: tasks) {
                 if(task != null){
                     output.writeUTF( task.getTitle() );

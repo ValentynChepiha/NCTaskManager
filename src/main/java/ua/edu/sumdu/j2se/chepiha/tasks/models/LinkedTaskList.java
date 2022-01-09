@@ -208,4 +208,14 @@ public class LinkedTaskList extends AbstractTaskList {
         }
         return collection.build();
     }
+
+    public void clear(){
+        first.value = null;
+        first.next = null;
+
+        last.value = null;
+        last.prev = null;
+
+        sizeList = 0;
+    }
 }

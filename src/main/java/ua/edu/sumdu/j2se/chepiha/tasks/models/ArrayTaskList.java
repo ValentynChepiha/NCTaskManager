@@ -177,4 +177,11 @@ public class ArrayTaskList extends AbstractTaskList {
 
         return Arrays.stream(taskList).filter(Objects::nonNull);
     }
+
+    public void clear(){
+        for(int i=0; i<sizeList; i++){
+            taskList[i]=null;
+        }
+        sizeList = 0;
+    }
 }
