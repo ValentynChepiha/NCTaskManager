@@ -413,7 +413,7 @@ public class TasksForm {
         initFormTask();
         initTaskList();
         refreshListView();
-//        Notificator.run(tasks);
+        Notificator.run(tasks);
 
         tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())

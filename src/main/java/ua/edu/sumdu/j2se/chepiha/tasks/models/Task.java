@@ -189,7 +189,7 @@ public class Task implements Serializable {
     }
 
     private LocalDateTime getNextRepeatedTime(LocalDateTime current) {
-        if(current.isBefore(start))
+        if(!current.isAfter(start))
             return start;
         if(current.isAfter(end))
             return null;
@@ -199,7 +199,7 @@ public class Task implements Serializable {
     }
 
     private LocalDateTime getNextNotRepeatedTime(LocalDateTime current) {
-        return time.isAfter(current) ? time : null;
+        return !time.isBefore(current) ? time : null;
     }
 
     /**
