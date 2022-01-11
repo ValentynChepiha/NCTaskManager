@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ua.edu.sumdu.j2se.chepiha.tasks.services.Notificator;
 
 import java.net.URL;
 
@@ -20,7 +19,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		Platform.setImplicitExit(true);
-		URL resource = getClass().getClassLoader().getResource("TasksForm.fxml");
+		URL resource = getClass().getClassLoader().getResource("javaFX/TasksForm.fxml");
 		Parent root = FXMLLoader.load(resource);
 		primaryStage.setTitle("Tasks");
 		primaryStage.setScene(new Scene(root, 600, 480));

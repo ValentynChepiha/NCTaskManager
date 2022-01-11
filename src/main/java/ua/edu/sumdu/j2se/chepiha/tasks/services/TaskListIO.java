@@ -9,11 +9,11 @@ public class TaskListIO {
 
     private final static String file = "tsklist.bin";
 
-    public static void loadTaskList(AbstractTaskList tasks){
+    public static void loadTaskList(AbstractTaskList tasks) throws Exception {
         TaskIO.readBinary(tasks, new File(file));
     }
 
-    public static void saveTaskList(AbstractTaskList tasks) {
+    public static void saveTaskList(AbstractTaskList tasks) throws Exception {
         TaskIO.writeBinary(tasks, new File(file));
     }
 }

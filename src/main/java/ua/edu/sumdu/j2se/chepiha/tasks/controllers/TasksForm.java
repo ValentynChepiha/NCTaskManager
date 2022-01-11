@@ -1,6 +1,7 @@
 package ua.edu.sumdu.j2se.chepiha.tasks.controllers;
 
-import javafx.application.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,11 +13,14 @@ import ua.edu.sumdu.j2se.chepiha.tasks.services.Notificator;
 import ua.edu.sumdu.j2se.chepiha.tasks.services.TaskListIO;
 import ua.edu.sumdu.j2se.chepiha.tasks.types.SaveTaskTypes;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
 public class TasksForm {
+
+    Logger logger = LoggerFactory.getLogger(TasksForm.class.getName());
 
     private final AbstractTaskList tasks = new ArrayTaskList();
     private AbstractTaskList workTasks = new ArrayTaskList();
@@ -89,15 +93,6 @@ public class TasksForm {
     private Button btnCancel;
     private boolean localDateTime;
 
-// todo:
-//      зробити щоб не можна було рухати панель
-// mfSplitPane.setResizable(false);
-//    @FXML
-//    private SplitPane mfSplitPane;
-
-
-// todo:
-//      додати перевірку дат при введенні
     private void clearIndex(){
         selectedItem = -1;
     }
@@ -399,162 +394,185 @@ public class TasksForm {
 
     private void insertDataToWorkList(){
         workTasks.clear();
-        tasks.forEach(workTasks::add);
+        if(tasks.size()>0){
+            tasks.forEach(workTasks::add);
+        }
     }
 
-    private void initTaskList(){
-        TaskListIO.loadTaskList(tasks);
-        insertDataToWorkList();
+    private void initTaskList() throws Exception {
+        try {
+            TaskListIO.loadTaskList(tasks);
+            insertDataToWorkList();
+        } catch (Exception e){
+            logger.error("Error load: ",  e);
+        }
     }
 
     @FXML
-    private void initialize(){
-        initFormCalendar();
-        initFormTask();
-        initTaskList();
-        refreshListView();
-        Notificator.run(tasks);
-
-        tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
-                tInterval.setText(oldValue);
-        });
-
-        chkCalendar.setOnAction(event -> {
-            btnShowCalendar.setDisable( !btnShowCalendar.isDisabled() );
-            dtStartCalendar.setDisable( !dtStartCalendar.isDisabled() );
-            dtEndCalendar.setDisable( !dtEndCalendar.isDisabled() );
-
-            btnCreate.setDisable(chkCalendar.isSelected());
-            btnEdit.setDisable(true);
-            if(chkCalendar.isSelected()){
-                setDisableListView();
-                setHideFormTasksFields();
-            } else {
-                calendarOff();
-                refreshListView();
-            }
-
-        });
-
-        btnShowCalendar.setOnAction(event -> {
-            if(isVerifyCalendar()){
-                btnCreate.setDisable(false);
-                calendarOn();
-                refreshListView();
-            }
-        });
-
-        lvTasks.setOnMouseClicked(event -> {
-            int currentItem = lvTasks.getSelectionModel().getSelectedIndex();
-            if(currentItem >= 0 && currentItem != selectedItem ){
-                selectedItem = currentItem;
-                loadTaskEdit(workTasks.getTask(selectedItem));
-            }
-        });
-
-        btnEdit.setOnAction(event -> {
-            btnCreate.setDisable(true);
-            btnEdit.setDisable(true);
-            typeSave = SaveTaskTypes.types.EDIT;
-
-            setDisableListView();
-            setVisibleButtonsEdit();
-            setEnableFormTasksFields();
-        });
-
-        tRepeat.setOnAction(event -> {
-            if (tRepeat.isSelected()) {
-                initFormTaskRepeat();
-            } else {
-                initFormTaskOnce();
-            }
-        });
-
-// todo:
-//      зробити валідаціювведення дати
-//
-//      tStartTime.setValueValidationCallback( localDateTime -> {
-//
-//            System.out.println("Inside ::" + localDateTime);
-////            if(!DATE_VALUE_FORMAT.matcher(localDateTime.).matches()){
-////
-////            }
-//            return true;
-//        } );
-//
-//        tStartTime.valueValidationCallbackProperty();
-
-
-        btnCreate.setOnAction(event -> {
-            btnEdit.setDisable(true);
-            btnCreate.setDisable(true);
-            typeSave = SaveTaskTypes.types.CREATE;
-
-            setDisableListView();
-            setEnableFormTasksFields();
-            setVisibleButtonsCreate();
-            setVisibleFormTasksFields();
-            initFormTaskOnce();
-            setDefaultFormTasksFields();
-        });
-
-        btnCancel.setOnAction(event -> {
-            btnEdit.setDisable(true);
-            btnCreate.setDisable(false);
-
-            setDefaultFormTasksFields();
-            setHideFormTasksFields();
-            setHideButtonsEdit();
-            initEmptyListView(workTasks);
-            clearIndex();
-        });
-
-        btnSave.setOnAction(event -> {
-            if (!isVerifyTask())
-                return;
-
-            Task newTask;
-            String taskName = tName.getText();
-            LocalDateTime time = tStartTime.getLocalDateTime();
-            if(typeSave == SaveTaskTypes.types.CREATE){
-                newTask = new Task(taskName, time);
-            } else {
-                newTask = workTasks.getTask(selectedItem);
-                newTask.setTitle(taskName);
-                newTask.setTime(time);
-            }
-            newTask.setActive(tActive.isSelected());
-
-            if(tRepeat.isSelected()){
-                LocalDateTime timeStart = tStartTime.getLocalDateTime();
-                LocalDateTime timeEnd = tEndTime.getLocalDateTime();
-                int interval = Integer.parseInt(tInterval.getText());
-
-                newTask.setTime(timeStart, timeEnd, interval);
-            }
-
-            if(typeSave == SaveTaskTypes.types.CREATE){
-                tasks.add(newTask);
-            }
-            initTaskField();
+    private void initialize() throws IOException {
+        logger.info("{} Start...", LocalDateTime.now());
+        try {
+            initFormCalendar();
+            initFormTask();
+            logger.info("Start load data from file");
+            initTaskList();
+            logger.info("Loaded {} rows", tasks.size());
             refreshListView();
-            clearIndex();
-            initEmptyListView(workTasks);
-            TaskListIO.saveTaskList(tasks);
-        });
+            Notificator.run(tasks);
 
-        btnDelete.setOnAction(event -> {
-            Task task = workTasks.getTask(selectedItem);
-            if(ModalWindow.showConfirmDelete(task.toString())){
-                tasks.remove(task);
-                initTaskField();
-                refreshListView();
-                clearIndex();
+            tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
+                    tInterval.setText(oldValue);
+            });
+
+            chkCalendar.setOnAction(event -> {
+                btnShowCalendar.setDisable( !btnShowCalendar.isDisabled() );
+                dtStartCalendar.setDisable( !dtStartCalendar.isDisabled() );
+                dtEndCalendar.setDisable( !dtEndCalendar.isDisabled() );
+
+                btnCreate.setDisable(chkCalendar.isSelected());
+                btnEdit.setDisable(true);
+                if(chkCalendar.isSelected()){
+                    setDisableListView();
+                    setHideFormTasksFields();
+                } else {
+                    calendarOff();
+                    refreshListView();
+                }
+
+            });
+
+            btnShowCalendar.setOnAction(event -> {
+                try{
+                    if(isVerifyCalendar()){
+                        btnCreate.setDisable(false);
+                        calendarOn();
+                        refreshListView();
+                    }
+                }
+                catch (Error e){
+                    logger.error("Error calendar: ", e);
+                }
+            });
+
+            lvTasks.setOnMouseClicked(event -> {
+                int currentItem = lvTasks.getSelectionModel().getSelectedIndex();
+                if(currentItem >= 0 && currentItem != selectedItem ){
+                    selectedItem = currentItem;
+                    loadTaskEdit(workTasks.getTask(selectedItem));
+                }
+            });
+
+            btnEdit.setOnAction(event -> {
+                btnCreate.setDisable(true);
+                btnEdit.setDisable(true);
+                typeSave = SaveTaskTypes.types.EDIT;
+
+                setDisableListView();
+                setVisibleButtonsEdit();
+                setEnableFormTasksFields();
+            });
+
+            tRepeat.setOnAction(event -> {
+                if (tRepeat.isSelected()) {
+                    initFormTaskRepeat();
+                } else {
+                    initFormTaskOnce();
+                }
+            });
+
+            btnCreate.setOnAction(event -> {
+                btnEdit.setDisable(true);
+                btnCreate.setDisable(true);
+                typeSave = SaveTaskTypes.types.CREATE;
+
+                setDisableListView();
+                setEnableFormTasksFields();
+                setVisibleButtonsCreate();
+                setVisibleFormTasksFields();
+                initFormTaskOnce();
+                setDefaultFormTasksFields();
+            });
+
+            btnCancel.setOnAction(event -> {
+                btnEdit.setDisable(true);
+                btnCreate.setDisable(false);
+
+                setDefaultFormTasksFields();
+                setHideFormTasksFields();
+                setHideButtonsEdit();
                 initEmptyListView(workTasks);
-                TaskListIO.saveTaskList(tasks);
-            }
-        });
+                clearIndex();
+            });
+
+            btnSave.setOnAction (event -> {
+                try{
+                    if (!isVerifyTask())
+                        return;
+
+                    Task newTask;
+                    String taskName = tName.getText();
+                    LocalDateTime time = tStartTime.getLocalDateTime();
+                    if(typeSave == SaveTaskTypes.types.CREATE){
+                        newTask = new Task(taskName, time);
+                    } else {
+                        newTask = workTasks.getTask(selectedItem);
+                        newTask.setTitle(taskName);
+                        newTask.setTime(time);
+                    }
+                    newTask.setActive(tActive.isSelected());
+
+                    if(tRepeat.isSelected()){
+                        LocalDateTime timeStart = tStartTime.getLocalDateTime();
+                        LocalDateTime timeEnd = tEndTime.getLocalDateTime();
+                        int interval = Integer.parseInt(tInterval.getText());
+
+                        newTask.setTime(timeStart, timeEnd, interval);
+                    }
+
+                    if(typeSave == SaveTaskTypes.types.CREATE){
+                        tasks.add(newTask);
+                    }
+                    initTaskField();
+                    refreshListView();
+                    clearIndex();
+                    initEmptyListView(workTasks);
+                    TaskListIO.saveTaskList(tasks);
+
+                    logger.info("{} task: " + newTask.toString(), typeSave == SaveTaskTypes.types.CREATE ? "Added" : "Updated");
+                }
+                catch (Exception e){
+                    logger.error("Save/update task :", e);
+                }
+
+            });
+
+            btnDelete.setOnAction(event -> {
+                try{
+                    Task task = workTasks.getTask(selectedItem);
+                    if(ModalWindow.showConfirmDelete(task.toString())){
+                        tasks.remove(task);
+                        initTaskField();
+                        refreshListView();
+                        clearIndex();
+                        initEmptyListView(workTasks);
+                        TaskListIO.saveTaskList(tasks);
+
+                        logger.info("Deleted task: " + task.toString());
+                    }
+                }
+                catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+
+            });
+
+        }
+        catch (Exception e) {
+            logger.error("Error: ",  e);
+        }
+
+
     }
 
 }
