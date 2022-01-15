@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.chepiha.tasks.services;
+package ua.edu.sumdu.j2se.chepiha.tasks.views;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
