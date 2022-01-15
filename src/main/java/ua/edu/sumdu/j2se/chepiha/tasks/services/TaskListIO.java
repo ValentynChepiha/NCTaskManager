@@ -10,7 +10,10 @@ public class TaskListIO {
     private final static String file = "tsklist.bin";
 
     public static void loadTaskList(AbstractTaskList tasks) throws Exception {
-        TaskIO.readBinary(tasks, new File(file));
+        File dataFile = new File(file);
+        if(dataFile.exists() && dataFile.isFile()){
+            TaskIO.readBinary(tasks, new File(file));
+        }
     }
 
     public static void saveTaskList(AbstractTaskList tasks) throws Exception {
