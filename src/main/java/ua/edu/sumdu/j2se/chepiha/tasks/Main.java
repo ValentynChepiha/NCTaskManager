@@ -20,8 +20,11 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		Platform.setImplicitExit(true);
 		URL resource = getClass().getClassLoader().getResource("javaFX/TasksForm.fxml");
-		Parent root = FXMLLoader.load(resource);
-		primaryStage.setTitle("Tasks");
+
+		FXMLLoader loaderForm = new FXMLLoader(resource);
+		Parent root = loaderForm.load();
+
+        primaryStage.setTitle("Task manager");
 		primaryStage.setScene(new Scene(root, 600, 480));
 		primaryStage.setResizable(false);
 		primaryStage.show();
