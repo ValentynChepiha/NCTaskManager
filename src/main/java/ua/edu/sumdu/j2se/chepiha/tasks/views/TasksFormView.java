@@ -2,7 +2,9 @@ package ua.edu.sumdu.j2se.chepiha.tasks.views;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import ua.edu.sumdu.j2se.chepiha.tasks.controllers.TasksForm;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import jfxtras.scene.control.LocalDateTimeTextField;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.AbstractTaskList;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.Task;
 import ua.edu.sumdu.j2se.chepiha.tasks.services.VerifyingData;
@@ -11,53 +13,113 @@ import java.time.LocalDateTime;
 
 public class TasksFormView {
 
+    @FXML
+    public CheckBox chkCalendar;
+
+    @FXML
+    public LocalDateTimeTextField dtStartCalendar;
+
+    @FXML
+    public LocalDateTimeTextField dtEndCalendar;
+
+    @FXML
+    public Button btnShowCalendar;
+
+    @FXML
+    public ListView<String> lvTasks;
+
+    @FXML
+    public Button btnCreate;
+
+    @FXML
+    public Button btnEdit;
+
+    @FXML
+    public Label tLabelName;
+
+    @FXML
+    public TextField tName;
+
+    @FXML
+    public CheckBox tRepeat;
+
+    @FXML
+    public CheckBox tActive;
+
+    @FXML
+    public Label tLabelStartTime;
+
+    @FXML
+    public Label tLabelEndTime;
+
+    @FXML
+    public LocalDateTimeTextField tStartTime;
+
+    @FXML
+    public LocalDateTimeTextField tEndTime;
+
+    @FXML
+    public Label tLabelInterval;
+
+    @FXML
+    public TextField tInterval;
+
+    @FXML
+    public Button btnDelete;
+
+    @FXML
+    public Button btnSave;
+
+    @FXML
+    public Button btnCancel;
+
 //    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private static final String DEFAULT_INTERVAL = "3600";
 
-    public void startInit(TasksForm tasksForm){
-        TaskFormInit.initFormCalendar(tasksForm.chkCalendar, tasksForm.dtStartCalendar,
-                tasksForm.dtEndCalendar, tasksForm.btnShowCalendar);
-        TaskFormInit.initFormTask(tasksForm.btnEdit, tasksForm.btnCreate, tasksForm.tStartTime, tasksForm.tEndTime,
-                tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive, tasksForm.tRepeat, tasksForm.tLabelStartTime,
-                tasksForm.tLabelEndTime, tasksForm.tLabelInterval, tasksForm.tInterval, tasksForm.btnCancel,
-                tasksForm.btnSave, tasksForm.btnDelete);
+    public void startInit(){
+        TaskFormInit.initFormCalendar(chkCalendar, dtStartCalendar,
+                dtEndCalendar, btnShowCalendar);
+        TaskFormInit.initFormTask(btnEdit, btnCreate, tStartTime, tEndTime,
+                tLabelName, tName, tActive, tRepeat, tLabelStartTime,
+                tLabelEndTime, tLabelInterval, tInterval, btnCancel,
+                btnSave, btnDelete);
     }
 
-    public void calendarSwitch(TasksForm tasksForm){
-        if(tasksForm.chkCalendar.isSelected()){
-            TaskFormInit.setCalendarOn(tasksForm.dtStartCalendar, tasksForm.dtEndCalendar, tasksForm.btnShowCalendar);
-            TaskFormInit.formSet.setDisabled(tasksForm.btnCreate, tasksForm.btnEdit, tasksForm.lvTasks);
+    public void calendarSwitch(){
+        if(chkCalendar.isSelected()){
+            TaskFormInit.setCalendarOn(dtStartCalendar, dtEndCalendar, btnShowCalendar);
+            TaskFormInit.formSet.setDisabled(btnCreate, btnEdit, lvTasks);
         } else {
-            TaskFormInit.setCalendarOff(tasksForm.dtStartCalendar, tasksForm.dtEndCalendar, tasksForm.btnShowCalendar);
-            TaskFormInit.formSet.setEnabled(tasksForm.btnCreate);
-            TaskFormInit.formSet.setDisabled(tasksForm.btnEdit);
+            TaskFormInit.setCalendarOff(dtStartCalendar, dtEndCalendar, btnShowCalendar);
+            TaskFormInit.formSet.setEnabled(btnCreate);
+            TaskFormInit.formSet.setDisabled(btnEdit);
         }
-        TaskFormInit.setHideTaskEditFields(tasksForm.btnEdit, tasksForm.btnCreate, tasksForm.tLabelName,
-                tasksForm.tName, tasksForm.tActive, tasksForm.tRepeat, tasksForm.tLabelStartTime,
-                tasksForm.tStartTime, tasksForm.tLabelEndTime, tasksForm.tEndTime, tasksForm.tLabelInterval,
-                tasksForm.tInterval, tasksForm.btnCancel, tasksForm.btnSave, tasksForm.btnDelete);
+        TaskFormInit.setHideTaskEditFields(btnEdit, btnCreate, tLabelName,
+                tName, tActive, tRepeat, tLabelStartTime,
+                tStartTime, tLabelEndTime, tEndTime, tLabelInterval,
+                tInterval, btnCancel, btnSave, btnDelete);
     }
 
-    public void loadTasksListToListView(AbstractTaskList taskList, TasksForm tasksForm){
-        tasksForm.lvTasks.getItems().clear();
-        TaskFormInit.formSet.setDisabled(tasksForm.lvTasks);
+    public void loadTasksListToListView(AbstractTaskList taskList){
+        lvTasks.getItems().clear();
+        TaskFormInit.formSet.setDisabled(lvTasks);
         if(taskList.size()>0){
             ObservableList<String> names = FXCollections.observableArrayList();
             taskList.forEach(task -> names.add(task.toString()));
-            tasksForm.lvTasks.setItems(names);
-            TaskFormInit.formSet.setEnabled(tasksForm.lvTasks);
+            lvTasks.setItems(names);
+            TaskFormInit.formSet.setEnabled(lvTasks);
         }
     }
 
-    public void setDisableListView(TasksForm tasksForm){
-        TaskFormInit.formSet.setDisabled(tasksForm.lvTasks);
+    public void setDisableListView(){
+        TaskFormInit.formSet.setDisabled(lvTasks);
     }
 
-    public boolean verifyCalendar(TasksForm tasksForm){
+    public boolean verifyCalendar(){
         boolean result = true;
-        String error = VerifyingData.verifyCalendar(tasksForm.dtStartCalendar.getLocalDateTime(),
-                tasksForm.dtEndCalendar.getLocalDateTime());
+        String error = VerifyingData.verifyCalendar(dtStartCalendar.getLocalDateTime(),
+                dtEndCalendar.getLocalDateTime());
         if(error.length()>0){
             result = false;
             ModalWindow.showAlertError(error);
@@ -65,158 +127,158 @@ public class TasksFormView {
         return result;
     }
 
-    public int getIndexSelectedTask(int index, TasksForm tasksForm){
-        int currentItem = tasksForm.lvTasks.getSelectionModel().getSelectedIndex();
+    public int getIndexSelectedTask(int index){
+        int currentItem = lvTasks.getSelectionModel().getSelectedIndex();
         if(currentItem >= 0 && currentItem != index ){
             index = currentItem;
         }
         return index;
     }
 
-    public void setBtnTaskStart(TasksForm tasksForm){
-        TaskFormInit.formSet.setEnabled(tasksForm.btnCreate);
-        TaskFormInit.formSet.setDisabled(tasksForm.btnEdit);
+    public void setBtnTaskStart(){
+        TaskFormInit.formSet.setEnabled(btnCreate);
+        TaskFormInit.formSet.setDisabled(btnEdit);
     }
 
-    public void setBtnTaskOn(TasksForm tasksForm){
-        TaskFormInit.formSet.setEnabled(tasksForm.btnCreate, tasksForm.btnEdit);
+    public void setBtnTaskOn(){
+        TaskFormInit.formSet.setEnabled(btnCreate, btnEdit);
     }
 
-    public void setBtnTaskOff(TasksForm tasksForm){
-        TaskFormInit.formSet.setDisabled(tasksForm.btnCreate, tasksForm.btnEdit);
+    public void setBtnTaskOff(){
+        TaskFormInit.formSet.setDisabled(btnCreate, btnEdit);
     }
 
-    public void setBtnCRUDOn(TasksForm tasksForm){
-        TaskFormInit.formSet.setEnabled(tasksForm.btnDelete);
-        setBtnCreateOn(tasksForm);
+    public void setBtnCRUDOn(){
+        TaskFormInit.formSet.setEnabled(btnDelete);
+        setBtnCreateOn();
     }
 
-    public void setBtnCreateOn(TasksForm tasksForm){
-        TaskFormInit.formSet.setEnabled(tasksForm.btnCancel, tasksForm.btnSave);
+    public void setBtnCreateOn(){
+        TaskFormInit.formSet.setEnabled(btnCancel, btnSave);
     }
 
-    public void setBtnCRUDOff(TasksForm tasksForm){
-        TaskFormInit.formSet.setDisabled(tasksForm.btnCancel, tasksForm.btnSave, tasksForm.btnDelete);
+    public void setBtnCRUDOff(){
+        TaskFormInit.formSet.setDisabled(btnCancel, btnSave, btnDelete);
     }
 
-    public void setBtnCRUDVisible(TasksForm tasksForm){
-        TaskFormInit.formSet.setVisible(tasksForm.btnDelete);
-        setBtnCreatVisible(tasksForm);
+    public void setBtnCRUDVisible(){
+        TaskFormInit.formSet.setVisible(btnDelete);
+        setBtnCreatVisible();
     }
 
-    public void setBtnCreatVisible(TasksForm tasksForm){
-        TaskFormInit.formSet.setVisible(tasksForm.btnCancel, tasksForm.btnSave);
+    public void setBtnCreatVisible(){
+        TaskFormInit.formSet.setVisible(btnCancel, btnSave);
     }
 
-    public void setBtnCRUDHide(TasksForm tasksForm){
-        TaskFormInit.formSet.setHide(tasksForm.btnCancel, tasksForm.btnSave, tasksForm.btnDelete);
+    public void setBtnCRUDHide(){
+        TaskFormInit.formSet.setHide(btnCancel, btnSave, btnDelete);
     }
 
-    public void setHideFormTasks(TasksForm tasksForm){
-        TaskFormInit.setHideFormTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime, tasksForm.tLabelEndTime,
-                tasksForm.tEndTime, tasksForm.tLabelInterval, tasksForm.tInterval);
+    public void setHideFormTasks(){
+        TaskFormInit.setHideFormTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
+                tEndTime, tLabelInterval, tInterval);
     }
 
-    public void setDisableFormTasks(TasksForm tasksForm){
-        TaskFormInit.setDisableFormTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime, tasksForm.tLabelEndTime,
-                tasksForm.tEndTime, tasksForm.tLabelInterval, tasksForm.tInterval);
+    public void setDisableFormTasks(){
+        TaskFormInit.setDisableFormTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
+                tEndTime, tLabelInterval, tInterval);
     }
 
-    public void loadTaskOnceEdit(Task task, TasksForm tasksForm){
-        tasksForm.tName.setText(task.getTitle());
-        tasksForm.tActive.setSelected(task.isActive());
-        tasksForm.tRepeat.setSelected(false);
-        tasksForm.tStartTime.setLocalDateTime(task.getStartTime());
+    public void loadTaskOnceEdit(Task task){
+        tName.setText(task.getTitle());
+        tActive.setSelected(task.isActive());
+        tRepeat.setSelected(false);
+        tStartTime.setLocalDateTime(task.getStartTime());
 
-        TaskFormInit.setVisibleFormOnceTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime);
-        TaskFormInit.formSet.setTextValue("Time:", tasksForm.tLabelStartTime);
+        TaskFormInit.setVisibleFormOnceTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime);
+        TaskFormInit.formSet.setTextValue("Time:", tLabelStartTime);
     }
 
-    public void loadTaskRepeatEdit(Task task, TasksForm tasksForm){
-        tasksForm.tName.setText(task.getTitle());
-        tasksForm.tActive.setSelected(task.isActive());
-        tasksForm.tRepeat.setSelected(true);
-        tasksForm.tStartTime.setLocalDateTime(task.getStartTime());
-        tasksForm.tEndTime.setLocalDateTime(task.getEndTime());
-        tasksForm.tInterval.setText("" + task.getRepeatInterval());
+    public void loadTaskRepeatEdit(Task task){
+        tName.setText(task.getTitle());
+        tActive.setSelected(task.isActive());
+        tRepeat.setSelected(true);
+        tStartTime.setLocalDateTime(task.getStartTime());
+        tEndTime.setLocalDateTime(task.getEndTime());
+        tInterval.setText("" + task.getRepeatInterval());
 
-        TaskFormInit.setVisibleFormRepeatTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime, tasksForm.tLabelEndTime,
-                tasksForm.tEndTime, tasksForm.tLabelInterval, tasksForm.tInterval);
-        TaskFormInit.formSet.setTextValue("Start time:", tasksForm.tLabelStartTime);
+        TaskFormInit.setVisibleFormRepeatTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
+                tEndTime, tLabelInterval, tInterval);
+        TaskFormInit.formSet.setTextValue("Start time:", tLabelStartTime);
     }
 
-    public void clearFieldsFormTasks(TasksForm tasksForm){
-        tasksForm.tName.setText("");
-        tasksForm.tStartTime.setLocalDateTime(null);
-        tasksForm.tEndTime.setLocalDateTime(null);
-        tasksForm.tActive.setSelected(false);
-        tasksForm.tRepeat.setSelected(false);
-        tasksForm.tInterval.setText(DEFAULT_INTERVAL);
+    public void clearFieldsFormTasks(){
+        tName.setText("");
+        tStartTime.setLocalDateTime(null);
+        tEndTime.setLocalDateTime(null);
+        tActive.setSelected(false);
+        tRepeat.setSelected(false);
+        tInterval.setText(DEFAULT_INTERVAL);
     }
 
-    public void setDefaultValuesTask(TasksForm tasksForm){
+    public void setDefaultValuesTask(){
         LocalDateTime NOW = LocalDateTime.now();
-        if(tasksForm.tStartTime.getLocalDateTime() == null){
-            tasksForm.tStartTime.setLocalDateTime(NOW);
+        if(tStartTime.getLocalDateTime() == null){
+            tStartTime.setLocalDateTime(NOW);
         }
-        if(tasksForm.tEndTime.getLocalDateTime() == null){
-            tasksForm.tEndTime.setLocalDateTime(NOW);
+        if(tEndTime.getLocalDateTime() == null){
+            tEndTime.setLocalDateTime(NOW);
         }
-        if(tasksForm.tInterval.getText() == null
-                || tasksForm.tInterval.getText().length() == 0){
-            tasksForm.tInterval.setText(DEFAULT_INTERVAL);
+        if(tInterval.getText() == null
+                || tInterval.getText().length() == 0){
+            tInterval.setText(DEFAULT_INTERVAL);
         }
     }
 
-    public void setEnableTaskOnce(TasksForm tasksForm){
-        TaskFormInit.setVisibleFormOnceTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime);
+    public void setEnableTaskOnce(){
+        TaskFormInit.setVisibleFormOnceTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime);
 
-        TaskFormInit.setEnableFormOnceTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime);
+        TaskFormInit.setEnableFormOnceTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime);
     }
 
-    public void setEnableTaskRepeat(TasksForm tasksForm){
-        TaskFormInit.setVisibleFormRepeatTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime, tasksForm.tLabelEndTime,
-                tasksForm.tEndTime, tasksForm.tLabelInterval, tasksForm.tInterval);
+    public void setEnableTaskRepeat(){
+        TaskFormInit.setVisibleFormRepeatTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
+                tEndTime, tLabelInterval, tInterval);
 
-        TaskFormInit.setEnableFormRepeatTasksFields(tasksForm.tLabelName, tasksForm.tName, tasksForm.tActive,
-                tasksForm.tRepeat, tasksForm.tLabelStartTime, tasksForm.tStartTime, tasksForm.tLabelEndTime,
-                tasksForm.tEndTime, tasksForm.tLabelInterval, tasksForm.tInterval);
+        TaskFormInit.setEnableFormRepeatTasksFields(tLabelName, tName, tActive,
+                tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
+                tEndTime, tLabelInterval, tInterval);
     }
 
-    public void changeEditTask(TasksForm tasksForm){
-        setDefaultValuesTask(tasksForm);
-        if(tasksForm.tRepeat.isSelected()){
-            setEnableTaskRepeat(tasksForm);
+    public void changeEditTask(){
+        setDefaultValuesTask();
+        if(tRepeat.isSelected()){
+            setEnableTaskRepeat();
         } else {
-            setEnableTaskOnce(tasksForm);
+            setEnableTaskOnce();
         }
     }
 
-    public void refreshFormAfterCRUD(AbstractTaskList tasks, TasksForm tasksForm){
-        loadTasksListToListView(tasks, tasksForm);
-        clearFieldsFormTasks(tasksForm);
-        setHideFormTasks(tasksForm);
-        setBtnCRUDHide(tasksForm);
-        setBtnTaskStart(tasksForm);
+    public void refreshFormAfterCRUD(AbstractTaskList tasks){
+        loadTasksListToListView(tasks);
+        clearFieldsFormTasks();
+        setHideFormTasks();
+        setBtnCRUDHide();
+        setBtnTaskStart();
     }
 
-    public boolean verifyTaskBeforeSave(TasksForm tasksForm){
+    public boolean verifyTaskBeforeSave(){
         String msgError = "";
 
-        if(tasksForm.tRepeat.isSelected()){
-            msgError = VerifyingData.isVerifyTask(tasksForm.tName.getText(),
-                    tasksForm.tStartTime.getLocalDateTime(), tasksForm.tEndTime.getLocalDateTime(),
-                    tasksForm.tInterval.getText());
+        if(tRepeat.isSelected()){
+            msgError = VerifyingData.isVerifyTask(tName.getText(),
+                    tStartTime.getLocalDateTime(), tEndTime.getLocalDateTime(),
+                    tInterval.getText());
         } else {
-            msgError = VerifyingData.isVerifyTask(tasksForm.tName.getText(),
-                    tasksForm.tStartTime.getLocalDateTime());
+            msgError = VerifyingData.isVerifyTask(tName.getText(),
+                    tStartTime.getLocalDateTime());
         }
 
         if(msgError.length()>0){

@@ -9,9 +9,9 @@ import ua.edu.sumdu.j2se.chepiha.tasks.services.TaskListIO;
 
 import java.time.LocalDateTime;
 
-public class TasksModel {
+public class TasksFormModel {
 
-    Logger logger = LoggerFactory.getLogger(TasksModel.class.getName());
+    Logger logger = LoggerFactory.getLogger(TasksFormModel.class.getName());
 
     public void insertDataToWorkList(AbstractTaskList tasks, AbstractTaskList workTasks){
         workTasks.clear();

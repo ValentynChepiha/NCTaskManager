@@ -1,8 +1,6 @@
 package ua.edu.sumdu.j2se.chepiha.tasks.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import jfxtras.scene.control.LocalDateTimeTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.*;
@@ -14,79 +12,19 @@ import ua.edu.sumdu.j2se.chepiha.tasks.views.TasksFormView;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
-public class TasksForm {
+public class TasksForm extends TasksFormView {
 
     Logger logger = LoggerFactory.getLogger(TasksForm.class.getName());
 
     private AbstractTaskList tasks = new ArrayTaskList();
     private AbstractTaskList workTasks = new ArrayTaskList();
-    private TasksFormView view = new TasksFormView();
-    private TasksModel tasksModel = new TasksModel();
+    private TasksFormModel tasksModel = new TasksFormModel();
     int selectedItem = -1;
     SaveTaskTypes.types typeSave;
 
     private final Pattern INTERVAL_VALUE_FORMAT = Pattern.compile("^([1-9](\\d)*)?$");
     private final Pattern DATE_VALUE_FORMAT = Pattern.compile("^([2]\\d{3}-(0|1)\\d-[0123]\\d [012]\\d:[0-6]\\d:[0-6]\\d)?$");
 
-    @FXML
-    public CheckBox chkCalendar;
-
-    @FXML
-    public LocalDateTimeTextField dtStartCalendar;
-
-    @FXML
-    public LocalDateTimeTextField dtEndCalendar;
-
-    @FXML
-    public Button btnShowCalendar;
-
-    @FXML
-    public ListView<String> lvTasks;
-
-    @FXML
-    public Button btnCreate;
-
-    @FXML
-    public Button btnEdit;
-
-    @FXML
-    public Label tLabelName;
-
-    @FXML
-    public TextField tName;
-
-    @FXML
-    public CheckBox tRepeat;
-
-    @FXML
-    public CheckBox tActive;
-
-    @FXML
-    public Label tLabelStartTime;
-
-    @FXML
-    public Label tLabelEndTime;
-
-    @FXML
-    public LocalDateTimeTextField tStartTime;
-
-    @FXML
-    public LocalDateTimeTextField tEndTime;
-
-    @FXML
-    public Label tLabelInterval;
-
-    @FXML
-    public TextField tInterval;
-
-    @FXML
-    public Button btnDelete;
-
-    @FXML
-    public Button btnSave;
-
-    @FXML
-    public Button btnCancel;
 
     public void initModel(){
         logger.info("{} Start...", LocalDateTime.now());
@@ -98,8 +36,8 @@ public class TasksForm {
     public void initialize() {
         try {
             initModel();
-            view.startInit(this);
-            view.loadTasksListToListView(workTasks, this);
+            startInit();
+            loadTasksListToListView(workTasks);
             Notificator.run(tasks);
 
             tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -108,17 +46,17 @@ public class TasksForm {
             });
 
             chkCalendar.setOnAction(event -> {
-                view.calendarSwitch(this);
+                calendarSwitch();
                 tasksModel.insertDataToWorkList(tasks, workTasks);
-                view.loadTasksListToListView(tasks, this);
+                loadTasksListToListView(tasks);
             });
 
             btnShowCalendar.setOnAction(event -> {
                 try{
-                    if(view.verifyCalendar(this)){
+                    if(verifyCalendar()){
                         tasksModel.getWorkTaskList(tasks, workTasks, dtStartCalendar.getLocalDateTime(),
                                 dtEndCalendar.getLocalDateTime());
-                        view.loadTasksListToListView(workTasks, this);
+                        loadTasksListToListView(workTasks);
                     }
                 }
                 catch (Error e){
@@ -127,17 +65,17 @@ public class TasksForm {
             });
 
             lvTasks.setOnMouseClicked(event -> {
-                selectedItem = view.getIndexSelectedTask(selectedItem, this);
+                selectedItem = getIndexSelectedTask(selectedItem);
                 if(selectedItem >= 0){
                     Task task = workTasks.getTask(selectedItem);
                     if(task != null){
-                        view.setBtnTaskOn(this);
-                        view.setHideFormTasks(this);
-                        view.setDisableFormTasks(this);
+                        setBtnTaskOn();
+                        setHideFormTasks();
+                        setDisableFormTasks();
                         if(task.isRepeated()){
-                            view.loadTaskRepeatEdit(task, this);
+                            loadTaskRepeatEdit(task);
                         } else {
-                            view.loadTaskOnceEdit(task, this);
+                            loadTaskOnceEdit(task);
                         }
                     }
                 }
@@ -145,45 +83,45 @@ public class TasksForm {
 
             btnEdit.setOnAction(event -> {
                 typeSave = SaveTaskTypes.types.EDIT;
-                view.setBtnTaskOff(this);
-                view.setBtnCRUDOn(this);
-                view.setDisableListView(this);
-                view.setBtnTaskOff(this);
-                view.changeEditTask(this);
-                view.setBtnCRUDVisible(this);
-                view.setBtnCRUDOn(this);
+                setBtnTaskOff();
+                setBtnCRUDOn();
+                setDisableListView();
+                setBtnTaskOff();
+                changeEditTask();
+                setBtnCRUDVisible();
+                setBtnCRUDOn();
             });
 
             tRepeat.setOnAction(event -> {
-                view.setHideFormTasks(this);
-                view.setDisableFormTasks(this);
-                view.changeEditTask(this);
+                setHideFormTasks();
+                setDisableFormTasks();
+                changeEditTask();
             });
 
             btnCreate.setOnAction(event -> {
                 typeSave = SaveTaskTypes.types.CREATE;
-                view.setBtnTaskOff(this);
-                view.setBtnCreatVisible(this);
-                view.setBtnCreateOn(this);
-                view.setHideFormTasks(this);
-                view.setDisableFormTasks(this);
-                view.setEnableTaskOnce(this);
-                view.clearFieldsFormTasks(this);
-                view.setDefaultValuesTask(this);
+                setBtnTaskOff();
+                setBtnCreatVisible();
+                setBtnCreateOn();
+                setHideFormTasks();
+                setDisableFormTasks();
+                setEnableTaskOnce();
+                clearFieldsFormTasks();
+                setDefaultValuesTask();
             });
 
             btnCancel.setOnAction(event -> {
-                view.setBtnTaskStart(this);
-                view.setBtnCRUDHide(this);
-                view.setHideFormTasks(this);
-                view.clearFieldsFormTasks(this);
+                setBtnTaskStart();
+                setBtnCRUDHide();
+                setHideFormTasks();
+                clearFieldsFormTasks();
                 selectedItem = -1;
-                view.loadTasksListToListView(workTasks, this);
+                loadTasksListToListView(workTasks);
             });
 
             btnSave.setOnAction (event -> {
                 try{
-                    if (!view.verifyTaskBeforeSave(this))
+                    if (!verifyTaskBeforeSave())
                         return;
 
                     Task newTask;
@@ -214,7 +152,7 @@ public class TasksForm {
                     tasksModel.saveTaskListToFile(tasks);
                     tasksModel.insertDataToWorkList(tasks, workTasks);
                     selectedItem = -1;
-                    view.refreshFormAfterCRUD(workTasks, this);
+                    refreshFormAfterCRUD(workTasks);
                     logger.info("{} task: " + newTask.toString(), typeSave == SaveTaskTypes.types.CREATE ? "Added" : "Updated");
                 }
                 catch (Exception e){
@@ -231,7 +169,7 @@ public class TasksForm {
                         tasksModel.saveTaskListToFile(tasks);
                         tasksModel.insertDataToWorkList(tasks, workTasks);
                         selectedItem = -1;
-                        view.refreshFormAfterCRUD(workTasks, this);
+                        refreshFormAfterCRUD(workTasks);
                         logger.info("Deleted task: " + task.toString());
                     }
                 }
@@ -245,5 +183,4 @@ public class TasksForm {
             logger.error("Error: ",  e);
         }
     }
-
 }
