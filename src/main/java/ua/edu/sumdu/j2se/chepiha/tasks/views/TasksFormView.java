@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import jfxtras.scene.control.LocalDateTimeTextField;
+import ua.edu.sumdu.j2se.chepiha.tasks.controllers.TasksFormModel;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.AbstractTaskList;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.Task;
 import ua.edu.sumdu.j2se.chepiha.tasks.services.VerifyingData;
@@ -75,6 +76,7 @@ public class TasksFormView {
 
 //    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    public TasksFormModel tasksModel = new TasksFormModel();
     private static final String DEFAULT_INTERVAL = "3600";
 
     public void startInit(){

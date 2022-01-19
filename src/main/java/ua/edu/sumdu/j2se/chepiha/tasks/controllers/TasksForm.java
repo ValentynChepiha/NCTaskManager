@@ -16,9 +16,6 @@ public class TasksForm extends TasksFormView {
 
     Logger logger = LoggerFactory.getLogger(TasksForm.class.getName());
 
-    private AbstractTaskList tasks = new ArrayTaskList();
-    private AbstractTaskList workTasks = new ArrayTaskList();
-    private TasksFormModel tasksModel = new TasksFormModel();
     int selectedItem = -1;
     SaveTaskTypes.types typeSave;
 
@@ -29,7 +26,7 @@ public class TasksForm extends TasksFormView {
     public void initModel(){
         logger.info("{} Start...", LocalDateTime.now());
         logger.info("Start load data from file");
-        tasksModel.initTaskList(tasks, workTasks);
+        tasksModel.initTaskList();
     }
 
     @FXML
@@ -37,8 +34,8 @@ public class TasksForm extends TasksFormView {
         try {
             initModel();
             startInit();
-            loadTasksListToListView(workTasks);
-            Notificator.run(tasks);
+            loadTasksListToListView(tasksModel.getWorkTasks());
+            Notificator.run(tasksModel.getTasks());
 
             tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
@@ -47,16 +44,15 @@ public class TasksForm extends TasksFormView {
 
             chkCalendar.setOnAction(event -> {
                 calendarSwitch();
-                tasksModel.insertDataToWorkList(tasks, workTasks);
-                loadTasksListToListView(tasks);
+                tasksModel.insertDataToWorkList();
+                loadTasksListToListView(tasksModel.getWorkTasks());
             });
 
             btnShowCalendar.setOnAction(event -> {
                 try{
                     if(verifyCalendar()){
-                        tasksModel.getWorkTaskList(tasks, workTasks, dtStartCalendar.getLocalDateTime(),
-                                dtEndCalendar.getLocalDateTime());
-                        loadTasksListToListView(workTasks);
+                        tasksModel.getWorkTaskList(dtStartCalendar.getLocalDateTime(), dtEndCalendar.getLocalDateTime());
+                        loadTasksListToListView(tasksModel.getWorkTasks());
                     }
                 }
                 catch (Error e){
@@ -67,7 +63,7 @@ public class TasksForm extends TasksFormView {
             lvTasks.setOnMouseClicked(event -> {
                 selectedItem = getIndexSelectedTask(selectedItem);
                 if(selectedItem >= 0){
-                    Task task = workTasks.getTask(selectedItem);
+                    Task task = tasksModel.getWorkTasks().getTask(selectedItem);
                     if(task != null){
                         setBtnTaskOn();
                         setHideFormTasks();
@@ -116,7 +112,7 @@ public class TasksForm extends TasksFormView {
                 setHideFormTasks();
                 clearFieldsFormTasks();
                 selectedItem = -1;
-                loadTasksListToListView(workTasks);
+                loadTasksListToListView(tasksModel.getWorkTasks());
             });
 
             btnSave.setOnAction (event -> {
@@ -131,7 +127,7 @@ public class TasksForm extends TasksFormView {
                     if(typeSave == SaveTaskTypes.types.CREATE){
                         newTask = new Task(taskName, time);
                     } else {
-                        newTask = workTasks.getTask(selectedItem);
+                        newTask = tasksModel.getWorkTasks().getTask(selectedItem);
                         newTask.setTitle(taskName);
                         newTask.setTime(time);
                     }
@@ -146,13 +142,13 @@ public class TasksForm extends TasksFormView {
                     }
 
                     if(typeSave == SaveTaskTypes.types.CREATE){
-                        tasks.add(newTask);
+                        tasksModel.addTask(newTask);
                     }
 
-                    tasksModel.saveTaskListToFile(tasks);
-                    tasksModel.insertDataToWorkList(tasks, workTasks);
+                    tasksModel.saveTaskListToFile();
+                    tasksModel.insertDataToWorkList();
                     selectedItem = -1;
-                    refreshFormAfterCRUD(workTasks);
+                    refreshFormAfterCRUD(tasksModel.getWorkTasks());
                     logger.info("{} task: " + newTask.toString(), typeSave == SaveTaskTypes.types.CREATE ? "Added" : "Updated");
                 }
                 catch (Exception e){
@@ -163,13 +159,13 @@ public class TasksForm extends TasksFormView {
 
             btnDelete.setOnAction(event -> {
                 try{
-                    Task task = workTasks.getTask(selectedItem);
+                    Task task = tasksModel.getWorkTasks().getTask(selectedItem);
                     if(ModalWindow.showConfirmDelete(task.toString())){
-                        tasks.remove(task);
-                        tasksModel.saveTaskListToFile(tasks);
-                        tasksModel.insertDataToWorkList(tasks, workTasks);
+                        tasksModel.removeTask(task);
+                        tasksModel.saveTaskListToFile();
+                        tasksModel.insertDataToWorkList();
                         selectedItem = -1;
-                        refreshFormAfterCRUD(workTasks);
+                        refreshFormAfterCRUD(tasksModel.getWorkTasks());
                         logger.info("Deleted task: " + task.toString());
                     }
                 }
