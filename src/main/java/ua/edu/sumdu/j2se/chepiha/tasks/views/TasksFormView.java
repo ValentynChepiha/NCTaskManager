@@ -6,13 +6,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import jfxtras.scene.control.LocalDateTimeTextField;
 import ua.edu.sumdu.j2se.chepiha.tasks.controllers.TasksFormModel;
+import ua.edu.sumdu.j2se.chepiha.tasks.interfaces.Observer;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.AbstractTaskList;
 import ua.edu.sumdu.j2se.chepiha.tasks.models.Task;
 import ua.edu.sumdu.j2se.chepiha.tasks.services.VerifyingData;
+import ua.edu.sumdu.j2se.chepiha.tasks.types.ListOperationTask;
+import ua.edu.sumdu.j2se.chepiha.tasks.types.ListState;
 
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
-public class TasksFormView {
+public class TasksFormView implements Observer {
 
     @FXML
     public CheckBox chkCalendar;
@@ -74,12 +78,114 @@ public class TasksFormView {
     @FXML
     public Button btnCancel;
 
-//    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
     public TasksFormModel tasksModel = new TasksFormModel();
-    private static final String DEFAULT_INTERVAL = "3600";
 
-    public void startInit(){
+//    private final Pattern DATE_VALUE_FORMAT = Pattern.compile("^([2]\\d{3}-(0|1)\\d-[0123]\\d [012]\\d:[0-6]\\d:[0-6]\\d)?$");
+
+    private final Pattern INTERVAL_VALUE_FORMAT = Pattern.compile("^([1-9](\\d)*)?$");
+    private static final String DEFAULT_INTERVAL = "3600";
+    private static final int DEFAULT_SELECTED_ITEM = -1;
+
+    private ListOperationTask.types typeOperation;
+
+    public TasksFormView() {
+        tasksModel.registerObserver(this);
+    }
+
+    @Override
+    public void notification(ListState state) {
+        Task task = null;
+        switch (state){
+            case START:
+                startInit();
+                startValueFormat();
+                loadTasksListToListView(tasksModel.getWorkTasks());
+                break;
+            case CALENDAR_CHECK:
+                tasksModel.notifyObservers(chkCalendar.isSelected() ?
+                        ListState.CALENDAR_SHOW :
+                        ListState.CALENDAR_HIDE);
+                calendarSwitch();
+                break;
+            case CALENDAR_SHOW:
+            case CALENDAR_HIDE:
+                loadTasksListToListView(tasksModel.getWorkTasks());
+                break;
+            case CALENDAR_DO:
+                tasksModel.getWorkTaskList(dtStartCalendar.getLocalDateTime(), dtEndCalendar.getLocalDateTime());
+                loadTasksListToListView(tasksModel.getWorkTasks());
+                break;
+            case TASK_GET_INDEX:
+                tasksModel.setSelectedIndex(getIndexSelectedTask());
+                break;
+            case TASK_SELECTED:
+                task = tasksModel.getSelectedTask();
+                setBtnTaskOn();
+                setHideFormTasks();
+                setDisableFormTasks();
+                if(task.isRepeated()){
+                    loadTaskRepeatEdit(task);
+                } else {
+                    loadTaskOnceEdit(task);
+                }
+                break;
+            case TASK_EDIT:
+                typeOperation = ListOperationTask.types.EDIT;
+                setBtnTaskOff();
+                setBtnCRUDOn();
+                setDisableListView();
+                setBtnTaskOff();
+                changeEditTask();
+                setBtnCRUDVisible();
+                setBtnCRUDOn();
+                break;
+            case TASK_CHANGE_REPEAT:
+                setHideFormTasks();
+                setDisableFormTasks();
+                changeEditTask();
+                break;
+            case TASK_CREATE:
+                typeOperation = ListOperationTask.types.CREATE;
+                setBtnTaskOff();
+                setBtnCreatVisible();
+                setBtnCreateOn();
+                setHideFormTasks();
+                setDisableFormTasks();
+                setEnableTaskOnce();
+                clearFieldsFormTasks();
+                setDefaultValuesTask();
+                break;
+            case TASK_CANCEL:
+                setBtnTaskStart();
+                setBtnCRUDHide();
+                setHideFormTasks();
+                clearFieldsFormTasks();
+                tasksModel.setSelectedIndex(DEFAULT_SELECTED_ITEM);
+                loadTasksListToListView(tasksModel.getWorkTasks());
+                break;
+            case TASK_SAVE:
+                if(verifyTaskBeforeSave()){
+                    saveNewTask();
+                    tasksModel.saveTaskListToFile();
+                    tasksModel.insertDataToWorkList();
+                    tasksModel.setSelectedIndex(DEFAULT_SELECTED_ITEM);
+                    refreshFormAfterCRUD(tasksModel.getWorkTasks());
+                }
+                break;
+            case TASK_DELETE:
+                task = tasksModel.getSelectedTask();
+                if(ModalWindow.showConfirmDelete(task.toString())){
+                    tasksModel.removeTask(task);
+                    tasksModel.saveTaskListToFile();
+                    tasksModel.insertDataToWorkList();
+                    tasksModel.setSelectedIndex(DEFAULT_SELECTED_ITEM);
+                    refreshFormAfterCRUD(tasksModel.getWorkTasks());
+                }
+                break;
+        }
+    }
+
+    private void startInit(){
         TaskFormInit.initFormCalendar(chkCalendar, dtStartCalendar,
                 dtEndCalendar, btnShowCalendar);
         TaskFormInit.initFormTask(btnEdit, btnCreate, tStartTime, tEndTime,
@@ -88,7 +194,14 @@ public class TasksFormView {
                 btnSave, btnDelete);
     }
 
-    public void calendarSwitch(){
+    private void startValueFormat(){
+        tInterval.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!INTERVAL_VALUE_FORMAT.matcher(newValue).matches())
+                tInterval.setText(oldValue);
+        });
+    }
+
+    private void calendarSwitch(){
         if(chkCalendar.isSelected()){
             TaskFormInit.setCalendarOn(dtStartCalendar, dtEndCalendar, btnShowCalendar);
             TaskFormInit.formSet.setDisabled(btnCreate, btnEdit, lvTasks);
@@ -103,7 +216,7 @@ public class TasksFormView {
                 tInterval, btnCancel, btnSave, btnDelete);
     }
 
-    public void loadTasksListToListView(AbstractTaskList taskList){
+    private void loadTasksListToListView(AbstractTaskList taskList){
         lvTasks.getItems().clear();
         TaskFormInit.formSet.setDisabled(lvTasks);
         if(taskList.size()>0){
@@ -114,7 +227,7 @@ public class TasksFormView {
         }
     }
 
-    public void setDisableListView(){
+    private void setDisableListView(){
         TaskFormInit.formSet.setDisabled(lvTasks);
     }
 
@@ -129,20 +242,16 @@ public class TasksFormView {
         return result;
     }
 
-    public int getIndexSelectedTask(int index){
-        int currentItem = lvTasks.getSelectionModel().getSelectedIndex();
-        if(currentItem >= 0 && currentItem != index ){
-            index = currentItem;
-        }
-        return index;
+    private int getIndexSelectedTask(){
+        return lvTasks.getSelectionModel().getSelectedIndex();
     }
 
-    public void setBtnTaskStart(){
+    private void setBtnTaskStart(){
         TaskFormInit.formSet.setEnabled(btnCreate);
         TaskFormInit.formSet.setDisabled(btnEdit);
     }
 
-    public void setBtnTaskOn(){
+    private void setBtnTaskOn(){
         TaskFormInit.formSet.setEnabled(btnCreate, btnEdit);
     }
 
@@ -150,45 +259,41 @@ public class TasksFormView {
         TaskFormInit.formSet.setDisabled(btnCreate, btnEdit);
     }
 
-    public void setBtnCRUDOn(){
+    private void setBtnCRUDOn(){
         TaskFormInit.formSet.setEnabled(btnDelete);
         setBtnCreateOn();
     }
 
-    public void setBtnCreateOn(){
+    private void setBtnCreateOn(){
         TaskFormInit.formSet.setEnabled(btnCancel, btnSave);
     }
 
-    public void setBtnCRUDOff(){
-        TaskFormInit.formSet.setDisabled(btnCancel, btnSave, btnDelete);
-    }
-
-    public void setBtnCRUDVisible(){
+    private void setBtnCRUDVisible(){
         TaskFormInit.formSet.setVisible(btnDelete);
         setBtnCreatVisible();
     }
 
-    public void setBtnCreatVisible(){
+    private void setBtnCreatVisible(){
         TaskFormInit.formSet.setVisible(btnCancel, btnSave);
     }
 
-    public void setBtnCRUDHide(){
+    private void setBtnCRUDHide(){
         TaskFormInit.formSet.setHide(btnCancel, btnSave, btnDelete);
     }
 
-    public void setHideFormTasks(){
+    private void setHideFormTasks(){
         TaskFormInit.setHideFormTasksFields(tLabelName, tName, tActive,
                 tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
                 tEndTime, tLabelInterval, tInterval);
     }
 
-    public void setDisableFormTasks(){
+    private void setDisableFormTasks(){
         TaskFormInit.setDisableFormTasksFields(tLabelName, tName, tActive,
                 tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
                 tEndTime, tLabelInterval, tInterval);
     }
 
-    public void loadTaskOnceEdit(Task task){
+    private void loadTaskOnceEdit(Task task){
         tName.setText(task.getTitle());
         tActive.setSelected(task.isActive());
         tRepeat.setSelected(false);
@@ -199,7 +304,7 @@ public class TasksFormView {
         TaskFormInit.formSet.setTextValue("Time:", tLabelStartTime);
     }
 
-    public void loadTaskRepeatEdit(Task task){
+    private void loadTaskRepeatEdit(Task task){
         tName.setText(task.getTitle());
         tActive.setSelected(task.isActive());
         tRepeat.setSelected(true);
@@ -213,7 +318,7 @@ public class TasksFormView {
         TaskFormInit.formSet.setTextValue("Start time:", tLabelStartTime);
     }
 
-    public void clearFieldsFormTasks(){
+    private void clearFieldsFormTasks(){
         tName.setText("");
         tStartTime.setLocalDateTime(null);
         tEndTime.setLocalDateTime(null);
@@ -222,7 +327,7 @@ public class TasksFormView {
         tInterval.setText(DEFAULT_INTERVAL);
     }
 
-    public void setDefaultValuesTask(){
+    private void setDefaultValuesTask(){
         LocalDateTime NOW = LocalDateTime.now();
         if(tStartTime.getLocalDateTime() == null){
             tStartTime.setLocalDateTime(NOW);
@@ -236,7 +341,7 @@ public class TasksFormView {
         }
     }
 
-    public void setEnableTaskOnce(){
+    private void setEnableTaskOnce(){
         TaskFormInit.setVisibleFormOnceTasksFields(tLabelName, tName, tActive,
                 tRepeat, tLabelStartTime, tStartTime);
 
@@ -244,7 +349,7 @@ public class TasksFormView {
                 tRepeat, tLabelStartTime, tStartTime);
     }
 
-    public void setEnableTaskRepeat(){
+    private void setEnableTaskRepeat(){
         TaskFormInit.setVisibleFormRepeatTasksFields(tLabelName, tName, tActive,
                 tRepeat, tLabelStartTime, tStartTime, tLabelEndTime,
                 tEndTime, tLabelInterval, tInterval);
@@ -254,7 +359,7 @@ public class TasksFormView {
                 tEndTime, tLabelInterval, tInterval);
     }
 
-    public void changeEditTask(){
+    private void changeEditTask(){
         setDefaultValuesTask();
         if(tRepeat.isSelected()){
             setEnableTaskRepeat();
@@ -263,7 +368,7 @@ public class TasksFormView {
         }
     }
 
-    public void refreshFormAfterCRUD(AbstractTaskList tasks){
+    private void refreshFormAfterCRUD(AbstractTaskList tasks){
         loadTasksListToListView(tasks);
         clearFieldsFormTasks();
         setHideFormTasks();
@@ -273,7 +378,6 @@ public class TasksFormView {
 
     public boolean verifyTaskBeforeSave(){
         String msgError = "";
-
         if(tRepeat.isSelected()){
             msgError = VerifyingData.isVerifyTask(tName.getText(),
                     tStartTime.getLocalDateTime(), tEndTime.getLocalDateTime(),
@@ -282,13 +386,23 @@ public class TasksFormView {
             msgError = VerifyingData.isVerifyTask(tName.getText(),
                     tStartTime.getLocalDateTime());
         }
-
         if(msgError.length()>0){
             ModalWindow.showAlertError(msgError);
             return false;
         }
-
         return true;
+    }
+
+    private void saveNewTask(){
+        if(typeOperation == ListOperationTask.types.CREATE){
+            tasksModel.creteTask(tName.getText(), tStartTime.getLocalDateTime(), tActive.isSelected(),
+                    tRepeat.isSelected(), tEndTime.getLocalDateTime(),
+                    Integer.parseInt(tInterval.getText()));
+        } else {
+            tasksModel.updateTask(tName.getText(), tStartTime.getLocalDateTime(), tActive.isSelected(),
+                    tRepeat.isSelected(), tEndTime.getLocalDateTime(),
+                    Integer.parseInt(tInterval.getText()));
+        }
     }
 
 }
